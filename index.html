@@ -2,12 +2,21 @@
 <html>
   <head>
     <title>Socket.IO chat</title>
-    <link href="css/StyleSheet.css" rel="stylesheet">
+    <base href="/"> 
+    <link href="/css/StyleSheet.css" rel="stylesheet">
   </head>
   <body>
-    <ul id="messages"></ul>
+    <div class="gif">  
+      <img id="gif" src="EdSite/resources/gifs/HelloThere.gif">
+    </div>
+    <div class="skip">
+      <button onclick="skip">Skip</button>
+      <div class="counter">
+        <h1>7</h1>
+      </div>
+    </div>
     <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
+      <input id="m" autocomplete="off" /><button>Submit</button>
     </form>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>

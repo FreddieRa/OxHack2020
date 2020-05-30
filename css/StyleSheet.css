@@ -8,12 +8,23 @@ body {
     font: 13px Helvetica, Arial; 
 }
 
+
+
+#gif {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 5px;
+    width: 100%;
+}
+
 form { 
     background: #000; 
     padding: 3px; 
     position: fixed; 
-    bottom: 0; 
-    width: 100%; 
+    bottom: 50%; 
+    width: 33.33%; 
+    right: 33.33%;
+    border-radius: 5px;
 
 }
 
@@ -22,28 +33,64 @@ form input {
     padding: 10px; 
     width: 90%; 
     margin-right: .5%;
+    border-radius: 3px;
 }
 
 form button { 
-    width: 9%; 
-    background: rgb(130, 224, 255); 
-    border: none; 
+    width: 9.5%; 
+    background-color: grey; 
+    color: white;
+    border: 2px solid grey; 
     padding: 10px; 
+    border-radius: 3px;
+    text-align: center;
+    text-decoration: none;
+    transition-duration: 0.4s;
+    cursor: pointer;
 }
 
-#messages { 
-    list-style-type: none; 
-    margin: 0; padding: 0; 
+form button:hover{
+    background-color: white;
+    color: grey;
 }
 
-#messages li { 
-    padding: 5px 10px; 
+div.gif {
+  position: fixed;
+  bottom: 60%;
+  right: 33.33%;
+  width: 33.33%
 }
-
-#messages li:nth-child(odd) {
-    background: #eee;
+div.skip {
+    position: fixed;
+    bottom: 75%;
+    right: 15%;
+    width: 10%
 }
-
-#messages {
-    margin-bottom: 40px 
+div.counter {
+    position: fixed;
+    bottom: 75%;
+    right: 15%;
+    width: 2.5%;
+    border: 2px solid red;
+    border-radius: 100%;
+}
+button { 
+    width: 48.5%; 
+    background-color: white; 
+    color: red;
+    border: 2px solid red; 
+    padding: 10px; 
+    border-radius: 3px;
+    text-align: center;
+    text-decoration: none;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+button:hover {
+    background-color: red;
+    color: white;
+}
+h1 {
+    text-align: center;
+    color: red;
 }
