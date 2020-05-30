@@ -1,4 +1,5 @@
-var app = require('express')();
+var express = require('express')
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
@@ -14,6 +15,10 @@ app.get('/js/client.js', function(req, res){
   app.get('/EdSite', function(req, res){
     res.sendFile(__dirname + '/EdSite/index.html')
   })
+
+  
+app.use(express.static('public'));
+app.use('/EdSite/resources/gifs', express.static(__dirname + '/EdSite/resources/gifs'));
 
 io.on('connection', function(socket){
   socket.on('chat message', function(msg){

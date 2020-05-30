@@ -10,10 +10,10 @@
             var buttons = document.getElementById("buttons");
             var again = document.getElementById("tryAgain");
             if (r) {
-                gif = "resources/gifs/GeneralKenobi.gif"
+                gif = "EdSite/resources/gifs/GeneralKenobi.gif"
             }
             else {
-                gif = "resources/gifs/Dissapointed.gif"
+                gif = "EdSite/resources/gifs/Dissapointed.gif"
             }
             document.getElementById('myImage').src = gif;
             buttons.style.display = "none";
@@ -21,7 +21,7 @@
         }
 
         function tryAgain(){
-            var gif = "resources/gifs/HelloThere.gif";
+            var gif = "EdSite/resources/gifs/HelloThere.gif";
             var width = 480;
             var height = 240;
             var buttons = document.getElementById("buttons");
@@ -36,7 +36,7 @@
     </script>
 <center>
     <h1>HELLO THERE</h1>
-    <img id="myImage" src="resources/gifs/HelloThere.gif" width="480" height="240">
+    <img id="myImage" src="EdSite/resources/gifs/HelloThere.gif" width="480" height="240">
     <p id="buttons">
         <button type="button" onclick="response(1)">General Kenobi!</button>
         <button type="button" onclick="response(0)">Hi</button>
