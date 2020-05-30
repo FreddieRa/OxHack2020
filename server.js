@@ -14,6 +14,7 @@ global.document = document;
 var $ = jQuery = require('jquery')(window);
 
 let messages = 0;
+let users = []; 
 
 
 app.get('/', function(req, res){
@@ -118,14 +119,14 @@ http.listen(port, function(){
   console.log('listening on *:' + port);
 });
 
-/*
+
 function checkMessages() {
-    if(messages >= 3) {
+    if(messages >= users.length) {
         messages = 0
         io.emit('command', 'wipe');
     }
+
 }
 
 
 setInterval(checkMessages, 1000); //time is in ms
-*/
