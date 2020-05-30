@@ -23,7 +23,7 @@
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       $(function () {
-        var socket = io();
+        var socket = io();    //Gets the socket from the server (?)
         $('form').submit(function(){
           socket.emit('chat message', $('#m').val()); //Sending a message to server
           $('#m').val('');  //Setter
