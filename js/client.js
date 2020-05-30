@@ -1,17 +1,30 @@
 $(function() {
 var socket = io();    //Gets the socket from the server (?)
 
-class GetGiph{
-  constructor(APIkey = "ityag1M5myXGHtCjPeqtXtBYa38EUo46"){
-      this.GphApiClient = require('giphy-js-sdk-core');
-      this.client = GphApiClient(APIkey);
-  }
+// class GetGiph{
+//   constructor(APIkey = "ityag1M5myXGHtCjPeqtXtBYa38EUo46"){
+//       this.GphApiClient = require('giphy-js-sdk-core');
+//       this.client = GphApiClient(APIkey);
+//   }
 
-  getKey() {
-    alert("iN")
-      $('#messages').append($('<li>').text("this.client.APIkey"));
-      $('#messages').append($('<li>').text(this.client.APIkey));
-      alert(this.client.APIkey);
+//   getKey() {
+//       alert("in")
+//       $('#messages').append($('<li>').text("this.client.APIkey"));
+//       $('#messages').append($('<li>').text(this.client.APIkey));
+//       alert(this.client.APIkey);
+//   }
+// }
+
+function GetGiph(APIKey = "ityag1M5myXGHtCjPeqtXtBYa38EUo46") {
+  this.APIkey = APIKey;
+  this.gifApiClient = require('giphy-js-sdk-core');
+  this.client = this.gifApiClient(this.APIkey);
+
+  this.getKey = function() {
+    alert("in");
+    $('#messages').append($('<li>').text("this.client.APIkey"));
+    $('#messages').append($('<li>').text(this.client.APIkey));
+    alert(this.client.APIkey);
   }
 }
 
