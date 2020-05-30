@@ -18,7 +18,7 @@ app.get('/js/client.js', function(req, res){
 
   
 app.use(express.static('public'));
-app.use('/EdSite/resources/gifs', express.static(__dirname + '/EdSite/resources/gifs'));
+app.use('/EdSite/resources/gifs', express.static(__dirname + '/EdSite/resources/gifs'));  //Getting the resources
 
 io.on('connection', function(socket){
   socket.on('chat message', function(msg){
