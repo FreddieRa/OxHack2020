@@ -1,0 +1,78 @@
+html,
+body {
+	font: 14px/1.21 'Helvetica Neue', arial, sans-serif;
+	font-weight: 400;
+}
+
+.App {
+  max-width: 500px;
+  margin: 50px auto;
+  text-align: center;
+}
+
+.button-row,
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+button {
+  transition: box-shadow 0.3s;
+  font-size: 24px;
+  padding: 20px 25px;
+  width: 150px;
+  margin: 0px 10px 0px 10px;
+  background-color: white;
+  border: 4px solid rebeccapurple;
+  border-radius: 3px;
+  box-shadow: 2px 2px 2px 0px rgba(168,168,168,1);
+  cursor: pointer;
+  color: #333;
+}
+
+button:hover {
+  box-shadow: 4px 4px 6px 0px rgba(168,168,168,1);
+}
+
+button:focus {
+  background-color: #222;
+  color: #fff;
+}
+
+.message span {
+  display: block;
+  text-align: center;
+}
+
+.message-content {
+  font-weight: bold;
+  font-size: 20px;
+  padding: 20px;
+  background-color: #c0c0c0;
+  margin-bottom: 20px;
+}
+
+.success {
+  background-color: #0f0;
+}
+
+.fail {
+  background-color: #f00;
+}
+
+table {
+  width: 100%;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #E1E1E1; }
+th:first-child,
+td:first-child {
+  padding-left: 0; }
+th:last-child,
+td:last-child {
+  padding-right: 0; }

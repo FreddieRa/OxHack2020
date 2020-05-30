@@ -1,0 +1,48 @@
+{
+  "players": [
+    {
+      "name": "Mike Koala",
+      "score": 95
+    },
+    {
+      "name": "Gina Kangaroo",
+      "score": 92
+    },
+    {
+      "name": "Sally Tortoise",
+      "score": 86
+    },
+    {
+      "name": "Kim Lobster",
+      "score": 67
+    },
+    {
+      "name": "Peter Rabbit",
+      "score": 56
+    },
+    {
+      "name": "Frank Leopard",
+      "score": 43
+    },
+    {
+      "name": "Mary Hyena",
+      "score": 34
+    },
+    {
+      "name": "Caroline Bear",
+      "score": 32
+    },
+    {
+      "name": "Tom Eagle",
+      "score": 24
+    },
+    {
+      "name": "Jim Unicorn",
+      "score": 11
+    },
+    {
+      "name": "Player 1",
+      "score": 0
+    }
+  ]
+}
