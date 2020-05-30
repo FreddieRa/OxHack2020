@@ -31,7 +31,6 @@ socket.on('command', function(cmdDict) {
         case 'wipe': 
             $('#messages').empty();
             break;
-            case ''
     }
 });
 
