@@ -4,7 +4,30 @@
 </head>
 <body>
 
-<center><h1> HELLO</h1></center>
+    <script>
+        function response(r) {
+            var gif;
+            var buttons = document.getElementById("buttons");
+            if (r) {
+                gif = "GeneralKenobi.gif"
+            }
+            else {
+                gif = "Dissapointed.gif"
+            }
+            document.getElementById('myImage').src = gif;
+            buttons.style.display = "none";
+        }
+
+
+    </script>
+<center>
+    <h1> HELLO THERE</h1>
+    <img id="myImage" src="HelloThere.gif" width="480" height="240">
+    <p id="buttons">
+        <button type="button" onclick="response(1)">General Kenobi!</button>
+        <button type="button" onclick="response(0)">Hi</button>
+    </p>
+</center>
 
 </body>
 
