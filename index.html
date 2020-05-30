@@ -9,10 +9,10 @@
             var gif;
             var buttons = document.getElementById("buttons");
             if (r) {
-                gif = "GeneralKenobi.gif"
+                gif = "resources/gifs/GeneralKenobi.gif"
             }
             else {
-                gif = "Dissapointed.gif"
+                gif = "resources/gifs/Dissapointed.gif"
             }
             document.getElementById('myImage').src = gif;
             buttons.style.display = "none";
@@ -22,7 +22,7 @@
     </script>
 <center>
     <h1> HELLO THERE</h1>
-    <img id="myImage" src="HelloThere.gif" width="480" height="240">
+    <img id="myImage" src="resources/gifs/HelloThere.gif" width="480" height="240">
     <p id="buttons">
         <button type="button" onclick="response(1)">General Kenobi!</button>
         <button type="button" onclick="response(0)">Hi</button>
