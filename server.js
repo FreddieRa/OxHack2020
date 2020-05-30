@@ -4,6 +4,8 @@ var giphy = require('giphy-js-sdk-core');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
+var roundTime = 10;
+var countDownTimer = roundTime;
 
 var jsdom = require("jsdom");
 const { JSDOM } = jsdom;
@@ -14,7 +16,7 @@ global.document = document;
 var $ = jQuery = require('jquery')(window);
 
 let messages = 0;
-let users = []; 
+let users = [1,1,1]; 
 
 
 app.get('/', function(req, res){
@@ -120,13 +122,23 @@ http.listen(port, function(){
 });
 
 
-function checkMessages() {
+function update() {
+    console.log(countDownTimer)
     if(messages >= users.length) {
         messages = 0
-        io.emit('command', 'wipe');
+        io.emit('command', {'cmd':'wipe','data':null});
     }
+    if(countDownTimer > 0) {
+        countDownTimer --
+        messages = 0;
+    }
+    else {
+        io.emit('command',{'cmd':'wipe','data':null})
+        countDownTimer = roundTime;
+    }
+
 
 }
 
 
-setInterval(checkMessages, 1000); //time is in ms
+setInterval(update, 1000); //time is in ms
