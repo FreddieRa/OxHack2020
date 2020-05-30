@@ -9,6 +9,7 @@ app.get('/', function(req, res){
 });
 
 app.use('/js',  express.static(__dirname + '/js'))
+app.use('/css',  express.static(__dirname + '/css'))
 
 app.get('/EdSite', function(req, res){
   res.sendFile(__dirname + '/EdSite/index.html')
