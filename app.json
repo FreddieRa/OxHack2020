@@ -1,7 +1,22 @@
 {
-  "name": "MLH Hackathon Node.js Starter",
-  "description": "A hackathon starting point for new Node.js applications",
-  "repository": "https://github.com/MLH/mlh-hackathon-nodejs-starter.git",
-  "logo": "https://avatars1.githubusercontent.com/u/5752708?s=100",
-  "keywords": ["nodejs", "javascript"]
+  "name": "Socket-Chat-Example",
+  "description": "my first socket.io app",
+  "website": "https://github.com/socketio/chat-example",
+  "repository": "https://github.com/socketio/chat-example",
+  "logo": "https://node-js-sample.herokuapp.com/node.svg",
+  "success_url": "/",
+  "keywords": [
+    "node",
+    "express",
+    "socket.io",
+    "realtime",
+    "websocket"
+  ],
+  "scripts": {
+  },
+  "addons": [
+  ],
+  "env": {
+    "BUILDPACK_URL": "https://github.com/heroku/heroku-buildpack-nodejs"
+  }
 }
