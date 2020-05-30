@@ -1,10 +1,17 @@
 $(function() {
 var socket = io();    //Gets the socket from the server (?)
 
+var name = null
+
 $('form').submit(function(){
-  socket.emit('chat message', $('#m').val()); //Sending a message to server
-  $('#m').val('');  //Setter
-  return false;
+    if(name == null) {
+        //if (name is legit)
+            name = $('#m').val()
+            socket.emit('user', name); //Sending a message to server
+    }
+    socket.emit('chat message', $('#m').val()); //Sending a message to server
+    $('#m').val('');  //Setter
+    return false;
 });
 
 socket.on('chat message', function(msg){    //Recieving from server

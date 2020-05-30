@@ -16,16 +16,13 @@ global.document = document;
 var $ = jQuery = require('jquery')(window);
 
 let messages = 0;
-let users = [1,1,1]; 
+let users = 
 
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/game', function(req, res){
-    res.sendFile(__dirname + '/game.html');
-  });
 
 app.get('/js/client.js', function(req, res){
     res.sendFile(__dirname + '/js/client.js');
