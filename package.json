@@ -3,7 +3,12 @@
   "version": "0.0.1",
   "description": "my first socket.io app",
   "dependencies": {
+    "@giphy/js-fetch-api": "^1.5.9",
+    "@giphy/react-components": "^1.0.7",
     "express": "^4.15.2",
+    "giphy-js-sdk-core": "^1.0.6",
+    "jquery": "^3.5.1",
+    "jsdom": "^16.2.2",
     "socket.io": "^1.7.3"
   },
   "scripts": {
