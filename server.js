@@ -28,6 +28,10 @@ app.get('/EdSite', function(req, res){
     res.sendFile(__dirname + '/EdSite/index.html')
 })
 
+app.use('/css', express.static(__dirname + '/css'));
+app.use('/js', express.static(__dirname + '/js'));
+
+
 app.use('/EdSite/resources/gifs', express.static(__dirname + '/EdSite/resources/gifs'));
 
 io.on('connection', function(socket){

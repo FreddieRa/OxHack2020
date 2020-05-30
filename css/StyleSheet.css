@@ -48,6 +48,7 @@ form button {
     transition-duration: 0.4s;
     cursor: pointer;
 }
+
 form button:hover{
     background-color: white;
     color: grey;
