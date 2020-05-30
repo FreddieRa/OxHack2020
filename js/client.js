@@ -1,3 +1,4 @@
+$(function() {
 var socket = io();    //Gets the socket from the server (?)
 
 $('form').submit(function(){
@@ -9,4 +10,5 @@ $('form').submit(function(){
 socket.on('chat message', function(msg){    //Recieving from server
   $('#messages').append($('<li>').text(msg));   //Add message to #messages
   window.scrollTo(0, document.body.scrollHeight);
+});
 });
