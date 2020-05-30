@@ -28,9 +28,7 @@ app.get('/EdSite', function(req, res){
     res.sendFile(__dirname + '/EdSite/index.html')
 })
 
-  
-app.use(express.static('public'));
-app.use('/EdSite/resources/gifs', express.static(__dirname + '/EdSite/resources/gifs'));  //Getting the resources
+app.use('/EdSite/resources/gifs', express.static(__dirname + '/EdSite/resources/gifs'));
 
 io.on('connection', function(socket){
   socket.on('chat message', function(msg){
