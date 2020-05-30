@@ -8,16 +8,12 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/js/client.js', function(req, res){
-    res.sendFile(__dirname + '/js/client.js');
-  });
+app.use('/js',  express.static(__dirname + '/js'))
 
-  app.get('/EdSite', function(req, res){
-    res.sendFile(__dirname + '/EdSite/index.html')
-  })
+app.get('/EdSite', function(req, res){
+  res.sendFile(__dirname + '/EdSite/index.html')
+})
 
-  
-app.use(express.static('public'));
 app.use('/EdSite/resources/gifs', express.static(__dirname + '/EdSite/resources/gifs'));
 
 io.on('connection', function(socket){
