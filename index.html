@@ -7,14 +7,22 @@
     <script>
         function response(r) {
             var gif;
+            var width;
+            var height;
             var buttons = document.getElementById("buttons");
             if (r) {
                 gif = "resources/gifs/GeneralKenobi.gif"
+                width = 356
+                height = 200
             }
             else {
                 gif = "resources/gifs/Dissapointed.gif"
+                width = 500
+                height = 193
             }
             document.getElementById('myImage').src = gif;
+            document.getElementById('myImage').width = width;
+            document.getElementById('myImage').height = height;
             buttons.style.display = "none";
         }
 
