@@ -300,7 +300,7 @@ function state23() {
 
     io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
     
-    for (user of Object.values(users)) {
+    for (let user of Object.values(users)) {
         user.currentCaption = ""
         user.currentVotes = 0
         user.vote = -1
