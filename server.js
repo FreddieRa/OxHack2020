@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-var giphy = require('giphy-js-sdk-core');
+//var giphy = require('giphy-js-sdk-core');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
@@ -91,10 +91,12 @@ io.on('connection', function(socket){
     });
   
     socket.on('user', function(name){
-      if (name in users == false && state == 0) {          
-          users[name] = new User(name)
-          io.emit('command',{'cmd':'user', 'data': Object.keys(users)})
-      }
+        //Send error back for duplicate names
+        if (name in users == false && state == 0) {          
+            users[name] = new User(name)
+            io.emit('command',{'cmd':'user', 'data': Object.keys(users)})
+            console.log("Sending " + name + " to clients");
+        }
     });
 
     socket.on('start', function(_){
@@ -131,11 +133,6 @@ io.on('connection', function(socket){
         }
     });
 });
-
-function getGif(tag = "") {
-    let g = new Giph();
-    return g.newGif()
-}
 
 
 http.listen(port, function(){
@@ -182,7 +179,7 @@ function state01() {
     let url = getGif()
     io.emit('command',{'cmd':'forceLoad', 'data':url}) // Tells client to load and display gif
     io.emit('command',{'cmd':'startTimer', 'data':roundTime})     
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv"]})
+    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv", "UsersListDiv"]})
     io.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
 
     countDownTimer = roundTime
@@ -199,7 +196,7 @@ function state11() {
     } else {
         io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif (with countdown 0)
     }
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv"]})
+    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","UsersListDiv"]})
     io.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
     io.emit('command',{'cmd':'startTimer', 'data':roundTime})
 
@@ -216,7 +213,7 @@ function state12() {
     io.emit('captions', mapped); // On receiving captions, hide submissions
     io.emit('command',{'cmd': 'show', 'data': 'CaptionsListDiv'})
     io.emit('command',{'cmd':'startTimer', 'data':roundTime})
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","SkipBtn","CaptionsSubmitDiv"]})
+    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","SkipBtn","CaptionsSubmitDiv","UsersListDiv"]})
     io.emit('command',{'cmd':'show', 'data': ["gif","Counter","CaptionsListDiv"]})
     gotGif = false;
     countDownTimer = roundTime
@@ -234,7 +231,7 @@ function state23() {
     let u = Object.values(users)
 
     io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
-    io.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtn"]})
+    io.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtn","UsersListDiv"]})
     io.emit('command',{'cmd':'show', 'data': ["CaptionsListDiv"]})
 
     // SHOW LEADERBOARD
@@ -255,7 +252,7 @@ function state23() {
 
 
 function state31() {
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv"]})
+    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv"]})
     io.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
     io.emit('command',{'cmd':'startTimer', 'data':30})
     countDownTimer = 30
@@ -267,6 +264,21 @@ setInterval(update, 1000); //time is in ms
 
 
 
+function getGif(tag = "") {
+    //let g = new Giph(tag);
+    //return g.newGif()
+    let url = "https://api.imgflip.com/get_memes"
+    let string = $.ajax({ 
+        url: url, 
+        async: false
+     }).responseText;
+    let json = JSON.parse(string);
+    let memes = json.data.memes
+    let keys = Object.keys(memes)
+    let key = Math.floor(Math.random() * keys.length)
+    let memeurl = memes[keys[key]].url
+    return memeurl
+}
 
 
 
