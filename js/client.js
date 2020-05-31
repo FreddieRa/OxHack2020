@@ -138,7 +138,7 @@ $(function() {
             let btn = document.createElement("button")
             btn.className = btnClass;
             btn.innerText = item[1];
-            if (name == item[0]) {
+            if (false) {
                 $(btn).css("cursor", "default");
             } else {
                 btn.addEventListener("click", function(){ 
@@ -193,13 +193,13 @@ $(function() {
   
   });
 
-  socket.on('winningMeme', function(url) {
+  socket.on('winner', function(url) {
     //current votes, score
     countDownTimer = 10;
     timerOn = true;
     // $('#CaptionsListDiv').empty();
     $("#winning").show()
-    $("#winning").src(url);
+    $("#winning").innerText = "WINNER: " + url;
 
 });
 

@@ -31,6 +31,7 @@ let skippedVotes = 0;
 let currentMeme = "";
 let nextMeme = "";
 let maxVotes = -1;
+let winningSubmission = "";
 
 let states = {
    0:  "waiting for users to join", 
@@ -140,7 +141,7 @@ io.on('connection', function(socket){
         data = vote.data
         if (user in users && data in users) {
             console.log(user + " VOTED FOR " + data)
-            if(user == data){
+            if(false){
                 console.log("ERROR; you can't vote for yourself!")
 
             }
@@ -149,7 +150,7 @@ io.on('connection', function(socket){
                 users[data].currentVotes += 1
                 if (users[data].currentVotes > maxVotes) {
                     maxVotes = users[data].currentVotes
-                    winningSubmission = users[data].currentSubmission
+                    winningSubmission = users[data].name
                 }
                 users[data].score += 10
                 usersVoted += 1
@@ -259,9 +260,10 @@ function state23() {
     // LOOP END
     let u = Object.values(users)
 
-    io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
+    
     currentMeme = nextMeme
     io.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtn","UsersListDiv"]})
+    io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
     io.emit('command',{'cmd':'show', 'data': ["CaptionsListDiv"]})
 
     // SHOW LEADERBOARD
@@ -280,18 +282,21 @@ function state23() {
     // console.log("Graph: "+page)
     // io.emit('scores', page)
 
-    maxVotes = -1
+    
 
-    $.ajax({
-        type: 'POST',
-        url: "https://api.imgflip.com/caption_image", 
-        data: {"template_id": currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": winningSubmission, "text1": ""},
-        success: function(result) {
-            io.emit('winningMeme', result.data.url)
+    // $.ajax({
+    //     type: 'POST',
+    //     url: "https://api.imgflip.com/caption_image", 
+    //     data: {"template_id": currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": winningSubmission, "text1": ""},
+    //     type: "json",
+    //     success: function(result) {
+    //         console.log(result)
+    //         io.emit('winningMeme', result.url)
 
-        },
-        async:false
-    })
+    //     },
+    //     async:false
+    // })
+    io.emit('winner',winningSubmission)
     io.emit('command',{'cmd': 'startTimer', 'data':10})
 
     for (user of Object.values(users)) {
