@@ -4,6 +4,8 @@ $(function() {
     name = ""
     timerOn = false
     countDownTimer = 60;
+    InputLastVal = "";
+
     $('#SkipBtn').hide()
     $('#Counter').hide()
 
@@ -24,10 +26,11 @@ $(function() {
                 socket.emit('user', name); //Sending a message to server
         } else {
             let data = $('#m').val()
+            InputLastVal = $('#m').val();
             socket.emit('chat message', {"user": name, "data": data}); //Sending a message to server
         }
         $('#m').val('');  //Setter
-        $('#CaptionsSubmitDiv').hide()
+        $('#CaptionsSubmitDiv').hide()        
         return false;
     }
     $('#m').keyup(function(e){
@@ -39,10 +42,10 @@ $(function() {
 
   
   
-  socket.on('command', function(cmdDict) {
-      let cmd = cmdDict.cmd
-      let data = cmdDict.data
-      switch (cmd) {
+    socket.on('command', function(cmdDict) {
+        let cmd = cmdDict.cmd
+        let data = cmdDict.data
+        switch (cmd) {
             case 'gif':
                 //$('#messages').append($('<li>').html('<img src="' + data + '" />'));   //Add gif
                 //window.scrollTo(0, document.body.scrollHeight);
@@ -67,11 +70,11 @@ $(function() {
                 $('#Counter').text(countDownTimer) 
                 break;
             case 'loadStored':
-                $('#gif').attr('src', img.src)
+                $('#gif').attr('src', img.src)      //bug s.t. img.src is not defined
                 break;
             case 'hide':
                 for (element of data){
-                 $('#'+element).hide()
+                    $('#'+element).hide()
                 }
                 break;
             case 'show':
@@ -82,13 +85,13 @@ $(function() {
             case 'user':
                 $('#CaptionsList').empty()
                 for (name of data) {
-                var x = document.createElement("li");
-                var b = document.createElement("h1");
-                b.innerHTML = name
-                 x.appendChild(b);
-                 $('#CaptionsList').append(x);   
-            }
-                 break;   
+                    var x = document.createElement("li");
+                    var b = document.createElement("h1");
+                    b.innerHTML = name
+                    x.appendChild(b);
+                    $('#CaptionsList').append(x);   
+                }
+                break;   
 
          
       }
@@ -98,35 +101,57 @@ $(function() {
         countDownTimer = 30
         timerOn = true
         $('#Counter').text(countDownTimer)
-        $('#CaptionsList').empty()
+        $('#CaptionsList').empty();           
 
         for (item of captions) {
+            //alert(item[1]);
+            //alert($('#m').val());
+            //alert(InputLastVal);
+            if(InputLastVal == item[1]){
+                continue;
+            }            
+
             var x = document.createElement("li");
             var b = document.createElement("button");
             b.innerText = item[1]
             b.addEventListener("click", function(){ 
                 $('#CaptionsListDiv').hide()
                 socket.emit('vote', {"user": name, "data": item[0]});
-            });
+            });        
+
+            x.style.flexGrow = 1;
+            x.style.alignContent = "stretch";
+            x.style.background = "#00BFFF";
+            x.style.margin = "5px";
+            b.style.flexGrow = 1;
+            b.style.minWidth = "200px";
+
             x.appendChild(b);
-            $('#CaptionsList').append(x);   //Add message to #messages
+            $('#CaptionsList').append(x);   //Add message to #messages            
         }
       
   });
   
-  socket.on('scores', function(users) {
-      //current votes, score
-      countDownTimer = 10;
-      timerOn = true;
-      $('#CaptionsList').empty();
-      scores = users.sort((a, b) => Number(a[2]) - Number(b.score[2]));
-      for (user of scores){
-      var x = document.createElement("li");
-      var b = document.createElement("h1");
-      b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2]
-       x.appendChild(b);
-       $('#CaptionsList').append(x);
-    }
+    socket.on('scores', function(users) {
+        //current votes, score
+        countDownTimer = 10;
+        timerOn = true;
+        $('#CaptionsList').empty();
+        scores = users.sort((a, b) => Number(a[2]) - Number(b.score[2]));
+        for (user of scores){
+            var x = document.createElement("li");
+            var b = document.createElement("h1");
+            b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2]
+
+            x.style.flexGrow = 1;
+            x.style.alignContent = "stretch";
+            x.style.background = "#00BFFF";
+            x.style.margin = "5px";
+            b.style.flexGrow = 1;
+
+            x.appendChild(b);
+            $('#CaptionsList').append(x);            
+        }
   
   });
 

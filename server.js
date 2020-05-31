@@ -79,14 +79,14 @@ io.on('connection', function(socket){
             case 0:
                 break;
             case 1:
-                    if (user in users) {
-                        users[user].currentCaption = data
-                        usersSubmitted += 1
-                        if (usersSubmitted == Object.keys(users).length) {
-                            state12()
-                        }
+                if (user in users) {
+                    users[user].currentCaption = data
+                    usersSubmitted += 1
+                    if (usersSubmitted == Object.keys(users).length) {
+                        state12()
                     }
-                    break;
+                }
+                break;
         }
     });
   
@@ -115,12 +115,18 @@ io.on('connection', function(socket){
         data = vote.data
         if (user in users && data in users) {
             console.log(user + " VOTED FOR " + data)
-            users[user].vote = data
-            users[data].currentVotes += 1
-            users[data].score += 10
-            usersVoted += 1
-            if (usersVoted == Object.keys(users).length) {
-                state23()
+            if(user == data){
+                console.log("ERROR; you can't vote for yourself!")
+
+            }
+            else {
+                users[user].vote = data
+                users[data].currentVotes += 1
+                users[data].score += 10
+                usersVoted += 1
+                if (usersVoted == Object.keys(users).length) {
+                    state23()
+                }
             }
         }
     });
@@ -236,7 +242,7 @@ function state23() {
     io.emit('scores', u.map(x => [x.username, x.currentVotes, x.score]))
     io.emit('command',{'cmd': 'startTimer', 'data':10})
 
-    for (user of Object.values(user)) {
+    for (user of Object.values(users)) {
         user.currentCaption = ""
         user.currentVotes = 0
         user.vote = -1
