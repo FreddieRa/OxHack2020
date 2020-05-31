@@ -4,8 +4,6 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
-var roundTime = 30;
-var countDownTimer = roundTime;
 
 var jsdom = require("jsdom");
 const { JSDOM } = jsdom;
@@ -15,11 +13,12 @@ global.document = document;
 
 var $ = jQuery = require('jquery')(window);
 
-
 let imported = document.createElement('script');
 imported.src = "./js/user.js";
 document.head.appendChild(imported);
 
+var roundTime = 30;
+var countDownTimer = roundTime;
 let messages = 0;
 let users = {}
 
