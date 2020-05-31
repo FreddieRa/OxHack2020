@@ -73,10 +73,8 @@ app.use('/resources/gifs', express.static(__dirname + '/resources/gifs'));
 
 io.on('connection', function(socket){
     socket.on('chat message', function(msg){
-        console.log(msg);
         let user = msg.user
         let data = msg.data
-        console.log(data)
         switch (state) {
             case 0:
                 break;
@@ -93,10 +91,9 @@ io.on('connection', function(socket){
     });
   
     socket.on('user', function(name){
-    console.log("Name: " + name)
-      if (name in users == false && state == 0) {
+      if (name in users == false && state == 0) {          
           users[name] = new User(name)
-          console.log(users)
+          io.emit('command',{'cmd':'user', 'data': Object.keys(users)})
       }
     });
 
@@ -123,7 +120,6 @@ io.on('connection', function(socket){
             users[data].score += 10
             usersVoted += 1
             if (usersVoted == Object.keys(users).length) {
-                console.log("RUNNING state23()")
                 state23()
             }
         }
@@ -155,7 +151,6 @@ function update() {
 
             countDownTimer -= 1
             if (countDownTimer == 0) {
-                console.log("Moving to state 2")
                 state12()
             }
             break;
@@ -187,7 +182,6 @@ function state01() {
     countDownTimer = roundTime
 
     state = 1
-    console.log("State from 0 -> 1")
 }
 
 function state11() {
@@ -212,9 +206,7 @@ function state11() {
 function state12() {
     // After: 
     //      Else: Hide submission box -> Send submissions to user -> Reset counter
-    console.log(Object.values(users))
     let mapped = Object.values(users).map(x => [x.username, x.currentCaption])
-    console.log(mapped)
     io.emit('captions', mapped); // On receiving captions, hide submissions
     io.emit('command',{'cmd': 'show', 'data': 'CaptionsListDiv'})
     io.emit('command',{'cmd':'startTimer', 'data':roundTime})
@@ -236,12 +228,12 @@ function state23() {
     let u = Object.values(users)
 
     io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
-    io.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsListDiv","CaptionsSubmitDiv","gif","StartBtn"]})
-    io.emit('command',{'cmd':'show', 'data': []})
+    io.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtn"]})
+    io.emit('command',{'cmd':'show', 'data': ["CaptionsListDiv"]})
 
     // SHOW LEADERBOARD
     // io.emit('command',{'cmd': 'show', 'data': 'LEADERBOARD'})
-    io.emit('scores', [u.map(x => x.currentVotes), u.map(x => x.score)])
+    io.emit('scores', u.map(x => [x.username, x.currentVotes, x.score]))
     io.emit('command',{'cmd': 'startTimer', 'data':10})
 
     for (user of Object.values(user)) {
@@ -257,7 +249,7 @@ function state23() {
 
 
 function state31() {
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv"]})
+    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv"]})
     io.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
     io.emit('command',{'cmd':'startTimer', 'data':30})
     countDownTimer = 30
@@ -311,7 +303,6 @@ function Giph(tag) {
     }
     
     this.newGif = function() {
-        console.log(this.url())
         $.ajaxSetup({async: false});
         let string = $.ajax({ 
             url: this.url(), 

@@ -27,6 +27,7 @@ $(function() {
             socket.emit('chat message', {"user": name, "data": data}); //Sending a message to server
         }
         $('#m').val('');  //Setter
+        $('#CaptionsSubmitDiv').hide()
         return false;
     }
     $('#m').keyup(function(e){
@@ -58,8 +59,7 @@ $(function() {
             case 'forceLoad': // Tells client to display loaded gif now
                 console.log(data)
                 $('#gif').attr('src', data)
-                //show show submission box
-                //show submission button
+                $('#CaptionsList').empty()
                 break;
             case 'startTimer':
                 countDownTimer = data;
@@ -79,14 +79,23 @@ $(function() {
                  $('#'+element).show()
                 }                
                 break;
-        
+            case 'user':
+                $('#CaptionsList').empty()
+                for (name of data) {
+                var x = document.createElement("li");
+                var b = document.createElement("h1");
+                b.innerHTML = name
+                 x.appendChild(b);
+                 $('#CaptionsList').append(x);   
+            }
+                 break;   
+
          
       }
   });
   
   socket.on('captions', function(captions) {
-      console.log("Captions: " + captions)
-        countDownTimer = //sometime;
+        countDownTimer = 30
         timerOn = true
         $('#Counter').text(countDownTimer)
         $('#CaptionsList').empty()
@@ -96,19 +105,28 @@ $(function() {
             var b = document.createElement("button");
             b.innerText = item[1]
             b.addEventListener("click", function(){ 
+                $('#CaptionsListDiv').hide()
                 socket.emit('vote', {"user": name, "data": item[0]});
             });
             x.appendChild(b);
             $('#CaptionsList').append(x);   //Add message to #messages
         }
-
-        //hide submission box and button
-
-  
       
   });
   
-  socket.on('scores', function(scores) {
+  socket.on('scores', function(users) {
+      //current votes, score
+      countDownTimer = 10;
+      timerOn = true;
+      $('#CaptionsList').empty();
+      scores = users.sort((a, b) => Number(a[2]) - Number(b.score[2]));
+      for (user of scores){
+      var x = document.createElement("li");
+      var b = document.createElement("h1");
+      b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2]
+       x.appendChild(b);
+       $('#CaptionsList').append(x);
+    }
   
   });
 
