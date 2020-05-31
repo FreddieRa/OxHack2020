@@ -4,6 +4,8 @@ $(function() {
     name = ""
     timerOn = false
     countDownTimer = 60;
+    InputLastVal = "";
+
     $('#SkipBtn').hide()
     $('#Counter').hide()
 
@@ -24,10 +26,11 @@ $(function() {
                 socket.emit('user', name); //Sending a message to server
         } else {
             let data = $('#m').val()
+            InputLastVal = $('#m').val();
             socket.emit('chat message', {"user": name, "data": data}); //Sending a message to server
         }
         $('#m').val('');  //Setter
-        $('#CaptionsSubmitDiv').hide()
+        $('#CaptionsSubmitDiv').hide()        
         return false;
     }
     $('#m').keyup(function(e){
@@ -71,7 +74,7 @@ $(function() {
                 break;
             case 'hide':
                 for (element of data){
-                 $('#'+element).hide()
+                    $('#'+element).hide()
                 }
                 break;
             case 'show':
@@ -101,6 +104,13 @@ $(function() {
         $('#CaptionsList').empty();           
 
         for (item of captions) {
+            //alert(item[1]);
+            //alert($('#m').val());
+            //alert(InputLastVal);
+            if(InputLastVal == item[1]){
+                continue;
+            }            
+
             var x = document.createElement("li");
             var b = document.createElement("button");
             b.innerText = item[1]
@@ -108,12 +118,14 @@ $(function() {
                 $('#CaptionsListDiv').hide()
                 socket.emit('vote', {"user": name, "data": item[0]});
             });        
+
             x.style.flexGrow = 1;
             x.style.alignContent = "stretch";
             x.style.background = "#00BFFF";
             x.style.margin = "5px";
             b.style.flexGrow = 1;
             b.style.minWidth = "200px";
+
             x.appendChild(b);
             $('#CaptionsList').append(x);   //Add message to #messages            
         }
