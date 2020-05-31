@@ -101,33 +101,53 @@ $(function() {
         countDownTimer = 30
         timerOn = true
         $('#Counter').text(countDownTimer)
-        $('#CaptionsList').empty();           
+        $('#CaptionsList').empty();
+        
+        var i = 0;
 
         for (item of captions) {
             //alert(item[1]);
             //alert($('#m').val());
             //alert(InputLastVal);
-            if(InputLastVal == item[1]){
-                continue;
-            }            
+            // if(InputLastVal == item[1]){
+            //     continue;
+            // }
 
-            var x = document.createElement("li");
-            var b = document.createElement("button");
-            b.innerText = item[1]
-            b.addEventListener("click", function(){ 
+            $('#CaptionButton[' + i + ']').innerText = item[1];
+            $('#CaptionButton[' + i + ']').addEventListener("click", function(){ 
                 $('#CaptionsListDiv').hide()
                 socket.emit('vote', {"user": name, "data": item[0]});
-            });        
+            });    
 
-            x.style.flexGrow = 1;
-            x.style.alignContent = "stretch";
-            x.style.background = "#00BFFF";
-            x.style.margin = "5px";
-            b.style.flexGrow = 1;
-            b.style.minWidth = "200px";
+            //lert()
 
-            x.appendChild(b);
-            $('#CaptionsList').append(x);   //Add message to #messages            
+            // var x = document.createElement("li");
+            // var b = document.createElement("button");
+            // b.innerText = item[1]
+            // b.addEventListener("click", function(){ 
+            //     $('#CaptionsListDiv').hide()
+            //     socket.emit('vote', {"user": name, "data": item[0]});
+            // });        
+
+            // x.style.flexGrow = 1;
+            // x.style.alignContent = "stretch";
+            // x.style.background = "#00BFFF";
+            // x.style.margin = "5px";
+            // b.style.flexGrow = 1;
+            // b.style.minWidth = "200px";
+
+            // x.appendChild(b);
+            // $('#CaptionsList').append(x);   //Add message to #messages   
+            // //$('#CaptionsListDev2').append(x);         
+            i++;
+            if(i==4) {
+                break;
+            }            
+        }
+
+        while(i<4) {
+            $('#CaptionButton[' + i + ']').hide();
+            i++;
         }
       
   });
