@@ -297,7 +297,7 @@ function state23() {
     //     async:false
     // })
     io.emit('winner',winningSubmission)
-    io.emit('command',{'cmd': 'startTimer', 'data':10})
+    io.emit('command',{'cmd': 'startTimer', 'data':1})
 
     for (user of Object.values(users)) {
         user.currentCaption = ""
@@ -305,7 +305,7 @@ function state23() {
         user.vote = -1
     }
 
-    countDownTimer = 10
+    countDownTimer = 1
     usersVoted = 0
     state = 3
 }

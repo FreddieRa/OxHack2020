@@ -195,7 +195,7 @@ $(function() {
 
   socket.on('winner', function(url) {
     //current votes, score
-    countDownTimer = 10;
+    countDownTimer = 0;
     timerOn = true;
     // $('#CaptionsListDiv').empty();
     $("#winning").show()
