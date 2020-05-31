@@ -17,6 +17,7 @@ $(function() {
     $('#StartBtn').hide()
     $('#SkipBtn').hide()
     $('#Counter').hide()
+    $('#loader').hide()
 
     $("#SkipBtn").click(function(){ 
         socket.emit('skip', name);
@@ -207,8 +208,7 @@ $(function() {
     console.log(url);
     $("#winning").show()
     $("#winning").attr("src", url)
-    //$("#winning").innerText = "WINNER: " + url;
-
+    $("#winning").one('load', function(){$("#loader").hide(), $("#BestMeme").show()})
 });
 
 socket.on('refresh', function(_) {

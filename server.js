@@ -265,7 +265,7 @@ function state23() {
     
     io.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtn","UsersListDiv"]})
     io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
-    io.emit('command',{'cmd':'show', 'data': ["CaptionsListDiv"]})
+    io.emit('command',{'cmd':'show', 'data': ["loader"]})
 
     // SHOW LEADERBOARD
     // io.emit('command',{'cmd': 'show', 'data': 'LEADERBOARD'})
@@ -291,12 +291,10 @@ function state23() {
         console.log(result)
         let url = JSON.parse(result).data.url
         io.emit('winningMeme', url)
-        io.emit('command',{'cmd':'show', 'data': ["BestMeme"]})
     }, "html")
-    console.log("TRIED JQUERY")
 
     io.emit('winner',winningSubmission)
-    io.emit('command',{'cmd': 'startTimer', 'data':10})
+    io.emit('command',{'cmd': 'startTimer', 'data':6})
 
     io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
     
@@ -306,7 +304,7 @@ function state23() {
         user.vote = -1
     }
 
-    countDownTimer = 10
+    countDownTimer = 6
     usersVoted = 0
     maxVotes = -1
     state = 3
