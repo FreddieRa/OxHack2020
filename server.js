@@ -98,7 +98,7 @@ io.on('connection', function(socket){
   
     socket.on('user', function(name){
         //Send error back for duplicate names
-        if (name in users == false && state == 0) {          
+        if (name in users == false && state == 0) { 
             users[name] = new User(name)
             io.emit('command',{'cmd':'user', 'data': Object.keys(users)})
             console.log("Sending " + name + " to clients");

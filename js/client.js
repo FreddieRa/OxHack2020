@@ -99,14 +99,15 @@ $(function() {
                 break;
             case 'user':
                 $('#UsersListDiv').empty()
+
+                let divClass = "w-1/2 p-2"
+                let h2Class = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg"
                 for (name of data) {
                     console.log("Recieving " + name + " from server");
                     
-                    let divClass = "w-1/2 p-2"
                     let div = document.createElement("div");
                     div.className = divClass
 
-                    let h2Class = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg"
                     let h2 = document.createElement("h2");
                     h2.className = h2Class
                     h2.innerHTML = name
