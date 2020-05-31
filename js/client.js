@@ -27,6 +27,7 @@ $(function() {
 
 
     function submit() {
+        console.log("Name " + name)
         if ($('#m').val().length == 0) {
             return;
         }
