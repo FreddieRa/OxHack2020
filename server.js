@@ -290,6 +290,7 @@ function state23() {
         console.log(result)
         let url = JSON.parse(result).data.url
         io.emit('winningMeme', url)
+        io.emit('command',{'cmd':'show', 'data': ["BestMeme"]})
     }, "html")
     console.log("TRIED JQUERY")
 
@@ -297,8 +298,7 @@ function state23() {
     io.emit('command',{'cmd': 'startTimer', 'data':10})
 
     io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
-    io.emit('command',{'cmd':'show', 'data': ["BestMeme"]})
-
+    
     for (user of Object.values(users)) {
         user.currentCaption = ""
         user.currentVotes = 0
