@@ -155,7 +155,7 @@ io.on('connection', function(socket){
                 }
                 users[data].score += 10
                 usersVoted += 1
-                if (usersVoted == Object.keys(users).length || maxVotes >= Object.keys(users).length / 2) {
+                if (usersVoted == Object.keys(users).length) {
                     state23()
                 }
             }
