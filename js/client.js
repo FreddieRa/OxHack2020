@@ -39,10 +39,10 @@ $(function() {
 
   
   
-  socket.on('command', function(cmdDict) {
-      let cmd = cmdDict.cmd
-      let data = cmdDict.data
-      switch (cmd) {
+    socket.on('command', function(cmdDict) {
+        let cmd = cmdDict.cmd
+        let data = cmdDict.data
+        switch (cmd) {
             case 'gif':
                 //$('#messages').append($('<li>').html('<img src="' + data + '" />'));   //Add gif
                 //window.scrollTo(0, document.body.scrollHeight);
