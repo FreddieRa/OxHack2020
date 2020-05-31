@@ -14,6 +14,7 @@ $(function() {
     countDownTimer = 60;
     clicked = false;
 
+    $('#StartBtn').hide()
     $('#SkipBtn').hide()
     $('#Counter').hide()
 
@@ -34,6 +35,9 @@ $(function() {
         console.log($('#m').val())
         if(name == "") {
             //if (name is legit)
+                $('#CaptionsSubmitDiv').hide()
+                $('#StartBtn').show()
+
                 name = $('#m').val()
                 console.log(name)
                 socket.emit('user', name); //Sending a message to server
@@ -127,34 +131,34 @@ $(function() {
         $('#CaptionsListDiv').empty();
         clicked = false
         
-        // var i = 0;
+        let divClass = "w-1/2 p-2"
+        let btnClass = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg "
 
         for (let item of captions) {
-            let divClass = "w-1/2 p-2"
-            let btnClass = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg "
+            if (item[1] != ""){
+                let div = document.createElement("div")
+                div.className = divClass
 
-            let div = document.createElement("div")
-            div.className = divClass
-                        
-            let btn = document.createElement("button")
-            btn.className = btnClass;
-            btn.innerText = item[1];
-            if (false) {
-                $(btn).css("cursor", "default");
-            } else {
-                btn.addEventListener("click", function(){ 
-                    if (clicked == false) {
-                        this.className = this.className.replace('bg-gray-400', 'bg-blue-700')
-                        this.className = this.className.replace('text-gray-700', 'text-white-700')
-                        socket.emit('vote', {"user": name, "data": item[0]});
-                        clicked = true
-                    }
-                });
+                let btn = document.createElement("button")
+                btn.className = btnClass;
+                btn.innerText = item[1];
+                if (false) {
+                    $(btn).css("cursor", "default");
+                } else {
+                    btn.addEventListener("click", function(){ 
+                        if (clicked == false) {
+                            this.className = this.className.replace('bg-gray-400', 'bg-blue-700')
+                            this.className = this.className.replace('text-gray-700', 'text-white-700')
+                            socket.emit('vote', {"user": name, "data": item[0]});
+                            clicked = true
+                        }
+                    });
+                }
+
+                div.appendChild(btn)
+
+                $('#CaptionsListDiv').append(div)
             }
-
-            div.appendChild(btn)
-
-            $('#CaptionsListDiv').append(div) 
  
         }
 
