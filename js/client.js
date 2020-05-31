@@ -107,9 +107,9 @@ $(function() {
             //alert(item[1]);
             //alert($('#m').val());
             //alert(InputLastVal);
-            if(InputLastVal == item[1]){
-                continue;
-            }            
+            // if(InputLastVal == item[1]){
+            //     continue;
+            // }            
 
             var x = document.createElement("li");
             var b = document.createElement("button");
