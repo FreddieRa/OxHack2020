@@ -193,13 +193,15 @@ $(function() {
   
   });
 
-  socket.on('winner', function(url) {
+  socket.on('winningMeme', function(url) {
     //current votes, score
     countDownTimer = 0;
     timerOn = true;
     // $('#CaptionsListDiv').empty();
+    console.log(url);
     $("#winning").show()
-    $("#winning").innerText = "WINNER: " + url;
+    $("#winning").attr("src", url)
+    //$("#winning").innerText = "WINNER: " + url;
 
 });
 

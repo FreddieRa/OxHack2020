@@ -148,9 +148,9 @@ io.on('connection', function(socket){
             else {
                 users[user].vote = data
                 users[data].currentVotes += 1
-                if (users[data].currentVotes > maxVotes) {
+                if (users[data].currentVotes >= maxVotes) {
                     maxVotes = users[data].currentVotes
-                    winningSubmission = users[data].name
+                    winningSubmission = users[data].currentCaption
                 }
                 users[data].score += 10
                 usersVoted += 1
@@ -205,6 +205,7 @@ function state01() {
     // io.emit('command', {'cmd':'hide','data': 'start'});
 
     let url = getGif()
+    currentMeme = nextMeme
     io.emit('command',{'cmd':'forceLoad', 'data':url}) // Tells client to load and display gif
     io.emit('command',{'cmd':'startTimer', 'data':roundTime})     
     io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv", "UsersListDiv"]})
@@ -243,7 +244,7 @@ function state12() {
     io.emit('captions', mapped); // On receiving captions, hide submissions
     // io.emit('command',{'cmd': 'show', 'data': 'CaptionsListDiv'})
     io.emit('command',{'cmd':'startTimer', 'data':roundTime})
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","SkipBtn","CaptionsSubmitDiv","UsersListDiv", "winning"]})
+    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","SkipBtn","CaptionsSubmitDiv","UsersListDiv", "BestMeme"]})
     io.emit('command',{'cmd':'show', 'data': ["gif","Counter","CaptionsListDiv"]})
     gotGif = false;
     countDownTimer = roundTime
@@ -261,7 +262,6 @@ function state23() {
     let u = Object.values(users)
 
     
-    currentMeme = nextMeme
     io.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtn","UsersListDiv"]})
     io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
     io.emit('command',{'cmd':'show', 'data': ["CaptionsListDiv"]})
@@ -281,23 +281,23 @@ function state23() {
     // page = d3nBar({data: data})
     // console.log("Graph: "+page)
     // io.emit('scores', page)
-
     
+    let text = winningSubmission.split('\\')
 
-    // $.ajax({
-    //     type: 'POST',
-    //     url: "https://api.imgflip.com/caption_image", 
-    //     data: {"template_id": currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": winningSubmission, "text1": ""},
-    //     type: "json",
-    //     success: function(result) {
-    //         console.log(result)
-    //         io.emit('winningMeme', result.url)
+    let data = {"template_id": currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": text[0], "text1": text[1]}
 
-    //     },
-    //     async:false
-    // })
+    $.post("https://api.imgflip.com/caption_image", data, function(result) {
+        console.log(result)
+        let url = JSON.parse(result).data.url
+        io.emit('winningMeme', url)
+    }, "html")
+    console.log("TRIED JQUERY")
+
     io.emit('winner',winningSubmission)
-    io.emit('command',{'cmd': 'startTimer', 'data':1})
+    io.emit('command',{'cmd': 'startTimer', 'data':10})
+
+    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
+    io.emit('command',{'cmd':'show', 'data': ["BestMeme"]})
 
     for (user of Object.values(users)) {
         user.currentCaption = ""
@@ -305,14 +305,16 @@ function state23() {
         user.vote = -1
     }
 
-    countDownTimer = 1
+    countDownTimer = 10
     usersVoted = 0
+    maxVotes = -1
     state = 3
+    currentMeme = nextMeme
 }
 
 
 function state31() {
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "winning"]})
+    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "BestMeme"]})
     io.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
     io.emit('command',{'cmd':'startTimer', 'data':30})
     countDownTimer = 30
@@ -337,7 +339,7 @@ function getGif(tag = "") {
     let keys = Object.keys(memes)
     let key = Math.floor(Math.random() * keys.length)
     let memeurl = memes[keys[key]].url
-    let nextMeme = memes[keys[key]].id
+    nextMeme = memes[keys[key]].id
     return memeurl
 }
 
