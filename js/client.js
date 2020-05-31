@@ -58,33 +58,26 @@ $(function() {
             case 'forceLoad': // Tells client to display loaded gif now
                 console.log(data)
                 $('#gif').attr('src', data)
-                $('#gif').show()
-                $('#SkipBtn').show()
                 //show show submission box
-                $('#m').show()
                 //show submission button
-                $('#SubmitBtn').show()
                 break;
             case 'startTimer':
                 countDownTimer = data;
                 timerOn = true
-                $('#Counter').show()
-                $('#Counter').text(countDownTimer)
+                $('#Counter').text(countDownTimer) 
                 break;
             case 'loadStored':
                 $('#gif').attr('src', img.src)
-                //show show submission box
-                $('#m').show()
-                //show submission button
-                $('#SubmitBtn').show()
-                //show SkipButton
-                $('#SkipBtn').show()
                 break;
             case 'hide':
-                $('#'+data).hide()
+                for (element of data){
+                 $('#'+element).hide()
+                }
                 break;
             case 'show':
-                $('#'+data).show()
+                for (element of data){
+                 $('#'+element).show()
+                }                
                 break;
         
          
@@ -95,10 +88,8 @@ $(function() {
       console.log("Captions: " + captions)
         countDownTimer = //sometime;
         timerOn = true
-        $('#Counter').show()
         $('#Counter').text(countDownTimer)
         $('#CaptionsList').empty()
-        $('#CaptionsList').show()
 
         for (item of captions) {
             var x = document.createElement("li");
@@ -112,9 +103,7 @@ $(function() {
         }
 
         //hide submission box and button
-        $('#m').hide()
-        $('#SubmitBtn').hide()
-        $('#SkipBtn').hide()
+
   
       
   });
