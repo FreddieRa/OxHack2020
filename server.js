@@ -212,6 +212,7 @@ function state12() {
     let mapped = Object.values(users).map(x => [x.username, x.currentCaption])
     console.log(mapped)
     io.emit('captions', mapped); // On receiving captions, hide submissions
+    io.emit('command',{'cmd': 'show', 'data': 'CaptionsListDiv'})
     io.emit('command',{'cmd':'startTimer', 'data':roundTime})
     gotGif = false;
     countDownTimer = roundTime
@@ -228,9 +229,14 @@ function state23() {
     // LOOP END
     let u = Object.values(users)
 
-    io.emit('scores', [u.map(x => x.currentVotes), u.map(x => x.score)])
     io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
     io.emit('command',{'cmd': 'hide', 'data': 'gif'})
+    io.emit('command',{'cmd': 'hide', 'data': 'CaptionsListDiv'})
+    io.emit('command',{'cmd': 'hide', 'data': 'CaptionsSubmitDiv'})
+
+    // SHOW LEADERBOARD
+    // io.emit('command',{'cmd': 'show', 'data': 'LEADERBOARD'})
+    io.emit('scores', [u.map(x => x.currentVotes), u.map(x => x.score)])
     io.emit('command',{'cmd': 'startTimer', 'data':10})
 
     for (user of Object.values(user)) {
