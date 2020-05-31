@@ -67,7 +67,7 @@ $(function() {
                 $('#Counter').text(countDownTimer) 
                 break;
             case 'loadStored':
-                $('#gif').attr('src', img.src)
+                $('#gif').attr('src', img.src)      //bug s.t. img.src is not defined
                 break;
             case 'hide':
                 for (element of data){
@@ -99,18 +99,30 @@ $(function() {
         timerOn = true
         $('#Counter').text(countDownTimer)
         $('#CaptionsList').empty()
+        //$('#CaptionsList').innerHTML = "";             
+
 
         for (item of captions) {
+            //var div="<li class=\"bg-red-300\"><button class=\"rounded\">' + item[1] + '</button></li>";
+            //$('#CaptionsList').text(div);
+            //alert($('#CaptionsList').children.innerHTML);
+
             var x = document.createElement("li");
             var b = document.createElement("button");
             b.innerText = item[1]
             b.addEventListener("click", function(){ 
                 $('#CaptionsListDiv').hide()
                 socket.emit('vote', {"user": name, "data": item[0]});
-            });
-            
+            });        
+            x.style.flexGrow = 1;
+            x.style.alignContent = "stretch";
+            x.style.background = "#00BFFF";
+            x.style.margin = "5px";
+            b.style.flexGrow = 1;
             x.appendChild(b);
             $('#CaptionsList').append(x);   //Add message to #messages
+
+            //alert($('#CaptionsList').innerHTML);
         }
       
   });

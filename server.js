@@ -115,6 +115,9 @@ io.on('connection', function(socket){
         data = vote.data
         if (user in users && data in users) {
             console.log(user + " VOTED FOR " + data)
+            if(user == data){
+                console.log("ERROR; you can't vote for yourself!")
+            }
             users[user].vote = data
             users[data].currentVotes += 1
             users[data].score += 10
