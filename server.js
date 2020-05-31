@@ -30,7 +30,7 @@ let skippedVotes = 0;
 
 let currentMeme = "";
 let nextMeme = "";
-let maxVotes = 0;
+let maxVotes = -1;
 
 let states = {
    0:  "waiting for users to join", 
@@ -121,7 +121,7 @@ io.on('connection', function(socket){
         
         currentMeme = "";
         nextMeme = "";
-        maxVotes = 0;
+        maxVotes = -1;
         io.emit('refresh', null)
 
     });
@@ -147,8 +147,8 @@ io.on('connection', function(socket){
             else {
                 users[user].vote = data
                 users[data].currentVotes += 1
-                if (users[data].currentVotes > max) {
-                    max = users[data].currentVotes
+                if (users[data].currentVotes > maxVotes) {
+                    maxVotes = users[data].currentVotes
                     winningSubmission = users[data].currentSubmission
                 }
                 users[data].score += 10
@@ -280,7 +280,7 @@ function state23() {
     // console.log("Graph: "+page)
     // io.emit('scores', page)
 
-    maxVotes = 0
+    maxVotes = -1
 
     $.ajax({
         type: 'POST',
