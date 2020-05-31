@@ -39,7 +39,7 @@ socket.on('command', function(cmdDict) {
             break;
         case 'wipe': 
             $('#messages').empty();
-            $('#gif').attr('src', 'EdSite/resources/gifs/HelloThere.gif')
+            $('#gif').attr('src', '/resources/gifs/HelloThere.gif')
             break;
         case 'preload': 
             img = new Image();
