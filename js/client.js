@@ -42,47 +42,51 @@ $(function() {
       let cmd = cmdDict.cmd
       let data = cmdDict.data
       switch (cmd) {
-          case 'gif':
-              //$('#messages').append($('<li>').html('<img src="' + data + '" />'));   //Add gif
-              //window.scrollTo(0, document.body.scrollHeight);
-              $('#gif').attr('src', data)
-              break;
-          case 'wipe': 
-              $('#messages').empty();
-              $('#gif').attr('src', '/resources/gifs/HelloThere.gif')
-              break;
-          case 'preload': 
-              img = new Image();
-              img.src = data;
-              break;
-          case 'forceLoad': // Tells client to display loaded gif now
-              console.log(data)
-              $('#gif').attr('src', data)
-              $('#gif').show()
-              $('#SkipBtn').show()
-              //show show submission box
-              $('#m').show()
-              //show submission button
-              $('#SubmitBtn').show()
-              break;
-          case 'startTimer':
-              countDownTimer = data;
-              timerOn = true
-              $('#Counter').show()
-              $('#Counter').text(countDownTimer)
-              break;
-          case 'loadStored':
-              $('#gif').attr('src', img.src)
-              //show show submission box
-              $('#m').show()
-              //show submission button
-              $('#SubmitBtn').show()
-              //show SkipButton
-              $('#SkipBtn').show()
-              break;
-          case 'hide':
-              $('#'+data).hide()
-              break;
+            case 'gif':
+                //$('#messages').append($('<li>').html('<img src="' + data + '" />'));   //Add gif
+                //window.scrollTo(0, document.body.scrollHeight);
+                $('#gif').attr('src', data)
+                break;
+            case 'wipe': 
+                $('#messages').empty();
+                $('#gif').attr('src', '/resources/gifs/HelloThere.gif')
+                break;
+            case 'preload': 
+                img = new Image();
+                img.src = data;
+                break;
+            case 'forceLoad': // Tells client to display loaded gif now
+                console.log(data)
+                $('#gif').attr('src', data)
+                $('#gif').show()
+                $('#SkipBtn').show()
+                //show show submission box
+                $('#m').show()
+                //show submission button
+                $('#SubmitBtn').show()
+                break;
+            case 'startTimer':
+                countDownTimer = data;
+                timerOn = true
+                $('#Counter').show()
+                $('#Counter').text(countDownTimer)
+                break;
+            case 'loadStored':
+                $('#gif').attr('src', img.src)
+                //show show submission box
+                $('#m').show()
+                //show submission button
+                $('#SubmitBtn').show()
+                //show SkipButton
+                $('#SkipBtn').show()
+                break;
+            case 'hide':
+                $('#'+data).hide()
+                break;
+            case 'show':
+                $('#'+data).show()
+                break;
+        
          
       }
   });
