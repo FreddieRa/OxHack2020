@@ -2,7 +2,8 @@ $(function() {
 var socket = io();    //Gets the socket from the server (?)
 
 var name = null
-var timerOn = false
+timerOn = true
+countDownTimer = 60;
 $('form').submit(function(){
     if(name == null) {
         //if (name is legit)
@@ -78,7 +79,7 @@ socket.on('captions', function(captions) {
     countDownTimer = //sometime;
     timerOn = true
     $('#Counter').attr('display', 'block')
-    $('#Counter').attr('text', countDownTimer)
+    $('#Counter').text(countDownTimer)
     //hide submission box and button
     $('#m').attr('display','none')
     $('#SubmitBtn').attr('display','none')
@@ -95,12 +96,13 @@ socket.on('scores', function(scores) {
 
 function update() {
     if (timerOn){
+        console.log(countDownTimer)
         if (countDownTimer > 0) {
             countDownTimer -= 1
-            $('#Counter').attr('text', countDownTimer)
+            $('#Counter').text(countDownTimer)
         }
         else{
-            timerOn = 0
+            timerOn = false
             $('#Counter').attr('display', 'none')
         }
     }
