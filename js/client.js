@@ -12,7 +12,6 @@ $(function() {
     name = ""
     timerOn = false
     countDownTimer = 60;
-    InputLastVal = "";
     clicked = false;
 
     $('#SkipBtn').hide()
@@ -40,7 +39,7 @@ $(function() {
 
         } else {
             let data = $('#m').val()
-            InputLastVal = $('#m').val();
+            console.log(data)
             socket.emit('chat message', {"user": name, "data": data}); //Sending a message to server
         }
         $('#m').val('');  //Setter
