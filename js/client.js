@@ -71,7 +71,6 @@ socket.on('command', function(cmdDict) {
             break;
         case 'hide':
             break;
-
     }
 });
 
