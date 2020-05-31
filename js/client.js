@@ -108,6 +108,7 @@ $(function() {
                 $('#CaptionsListDiv').hide()
                 socket.emit('vote', {"user": name, "data": item[0]});
             });
+            
             x.appendChild(b);
             $('#CaptionsList').append(x);   //Add message to #messages
         }
