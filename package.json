@@ -5,6 +5,7 @@
   "dependencies": {
     "@giphy/js-fetch-api": "^1.5.9",
     "@giphy/react-components": "^1.0.7",
+    "d3node-barchart": "^0.1.1",
     "express": "^4.15.2",
     "giphy-js-sdk-core": "^1.0.6",
     "jquery": "^3.5.1",

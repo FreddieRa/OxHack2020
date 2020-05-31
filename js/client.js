@@ -1,6 +1,14 @@
 $(function() {
     var socket = io();    //Gets the socket from the server (?)
 
+    document.addEventListener('keydown', reset);
+    function reset(e) {
+        if (e.keyCode == 192) {
+            socket.emit('reset', null)
+        }
+        console.lo
+    }
+
     name = ""
     timerOn = false
     countDownTimer = 60;
@@ -131,7 +139,7 @@ $(function() {
             btn.className = btnClass;
             btn.innerText = item[1];
             if (name == item[0]) {
-                $(btnid).css("cursor", "default");
+                $(btn).css("cursor", "default");
             } else {
                 btn.addEventListener("click", function(){ 
                     if (clicked == false) {
@@ -156,32 +164,48 @@ $(function() {
       
   });
   
-    socket.on('scores', function(users) {
+    socket.on('scores', function(page) {
         //current votes, score
         countDownTimer = 10;
         timerOn = true;
-        $('#CaptionsList').empty();
-        scores = users.sort((a, b) => Number(a[2]) - Number(b.score[2]));
-        for (user of scores){
-            var x = document.createElement("li");
-            var b = document.createElement("h1");
+        // $('#CaptionsListDiv').empty();
+        
+        $("#Graph").load(page);
+        // for (user of scores){
+        //     var x = document.createElement("li");
+        //     var b = document.createElement("h1");
 
-            var ScoreboardStyling = "bg-blue-500 w-" + 200 * user[2] / scores[0][2] ;//Width;
+        //     // var ScoreboardStyling = "bg-blue-500 w-" +20 + 200 * user[2] / scores[0][2] ;//Width;
 
-            b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2];
-            b.classname = ScoreboardStyling;
+        //     b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2];
+        //     b.classname = ScoreboardStyling;
+            
+        //     //(While we don't have the bar chart)
+        //     x.style.flexGrow = 1;
+        //     x.style.alignContent = "stretch";
+        //     x.style.background = "#00BFFF";
+        //     x.style.margin = "5px";
+        //     b.style.flexGrow = 1;
 
-            // x.style.flexGrow = 1;
-            // x.style.alignContent = "stretch";
-            // x.style.background = "#00BFFF";
-            // x.style.margin = "5px";
-            // b.style.flexGrow = 1;
-
-            x.appendChild(b);
-            $('#CaptionsList').append(x);            
-        }
+        //     x.appendChild(b);
+        //     $('#CaptionsListDiv').append(x);            
+        // }
   
   });
+
+  socket.on('winningMeme', function(url) {
+    //current votes, score
+    countDownTimer = 10;
+    timerOn = true;
+    // $('#CaptionsListDiv').empty();
+    $("#winning").show()
+    $("#winning").src(url);
+
+});
+
+socket.on('refresh', function(_) {
+    window.location.reload(false);
+});
 
 
 }); 
