@@ -229,8 +229,16 @@ function state23() {
     let u = Object.values(users)
 
     io.emit('scores', [u.map(x => x.currentVotes), u.map(x => x.score)])
-    io.emit('command',{'cmd':'startTimer', 'data':10})
-    
+    io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
+    io.emit('command',{'cmd': 'hide', 'data': 'gif'})
+    io.emit('command',{'cmd': 'startTimer', 'data':10})
+
+    for (user of Object.values(user)) {
+        user.currentCaption = ""
+        user.currentVotes = 0
+        user.vote = -1
+    }
+
     countDownTimer = 10
     usersVoted = 0
     state = 3
@@ -238,7 +246,7 @@ function state23() {
 
 
 function state31() {
-    io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
+    io.emit('command',{'cmd': 'show', 'data': 'gif'})
     io.emit('command',{'cmd':'startTimer', 'data':30})
     countDownTimer = 30
     state = 1

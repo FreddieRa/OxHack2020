@@ -93,6 +93,7 @@ $(function() {
         timerOn = true
         $('#Counter').show()
         $('#Counter').text(countDownTimer)
+        $('#CaptionsList').empty()
         $('#CaptionsList').show()
 
         for (item of captions) {
