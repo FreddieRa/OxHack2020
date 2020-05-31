@@ -85,6 +85,7 @@ io.on('connection', function(socket){
                 break;
             case 1:
                 if (user in users) {
+                    console.log(user + " sent in " + data)
                     users[user].currentCaption = data
                     usersSubmitted += 1
                     if (usersSubmitted == Object.keys(users).length) {
@@ -154,7 +155,7 @@ io.on('connection', function(socket){
                 }
                 users[data].score += 10
                 usersVoted += 1
-                if (usersVoted == Object.keys(users).length) {
+                if (usersVoted == Object.keys(users).length || maxVotes >= Object.keys(users).length / 2) {
                     state23()
                 }
             }
