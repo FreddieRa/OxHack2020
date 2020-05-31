@@ -31,7 +31,7 @@ $(function() {
         if ($('#m').val().length == 0) {
             return;
         }
-        
+        console.log($('#m').val())
         if(name == "") {
             //if (name is legit)
                 name = $('#m').val()
