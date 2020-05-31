@@ -146,11 +146,7 @@ $(function() {
             div.appendChild(btn)
 
             $('#CaptionsListDiv').append(div) 
-            
-            // i++;            
-            // if(i==4) {
-            //     break;
-            // }            
+ 
         }
 
         // while(i<4) {
