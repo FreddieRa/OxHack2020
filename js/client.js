@@ -5,6 +5,7 @@ $(function() {
     timerOn = false
     countDownTimer = 60;
     InputLastVal = "";
+    clicked = false;
 
     $('#SkipBtn').hide()
     $('#Counter').hide()
@@ -19,11 +20,16 @@ $(function() {
 
 
     function submit() {
+        if ($('#m').val().length == 0) {
+            return;
+        }
+        
         if(name == "") {
             //if (name is legit)
                 name = $('#m').val()
                 console.log(name)
                 socket.emit('user', name); //Sending a message to server
+
         } else {
             let data = $('#m').val()
             InputLastVal = $('#m').val();
@@ -33,9 +39,11 @@ $(function() {
         $('#CaptionsSubmitDiv').hide()        
         return false;
     }
+
     $('#m').keyup(function(e){
         if (e.keyCode == 13) {submit()}
     });
+
     $('#SubmitBtn').click(function(){
         submit()
     });
@@ -61,8 +69,7 @@ $(function() {
                 break;
             case 'forceLoad': // Tells client to display loaded gif now
                 console.log(data)
-                $('#gif').attr('src', data)
-                $('#CaptionsList').empty()
+                $('#gif').attr('src', data)                
                 break;
             case 'startTimer':
                 countDownTimer = data;
@@ -83,17 +90,24 @@ $(function() {
                 }                
                 break;
             case 'user':
-                $('#CaptionsList').empty()
+                $('#UsersListDiv').empty()
                 for (name of data) {
-                    var x = document.createElement("li");
-                    var b = document.createElement("h1");
-                    b.innerHTML = name
-                    x.appendChild(b);
-                    $('#CaptionsList').append(x);   
-                }
-                break;   
+                    console.log("Recieving " + name + " from server");
+                    
+                    let divClass = "w-1/2 p-2"
+                    let div = document.createElement("div");
+                    div.className = divClass
 
-         
+                    let h2Class = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg"
+                    let h2 = document.createElement("h2");
+                    h2.className = h2Class
+                    h2.innerHTML = name
+
+                    div.appendChild(h2);
+                    $('#UsersListDiv').append(div);   
+                }
+                $('#UsersListDiv').show();
+                break;         
       }
   });
   
@@ -101,45 +115,35 @@ $(function() {
         countDownTimer = 30
         timerOn = true
         $('#Counter').text(countDownTimer)
-        $('#CaptionsList').empty();
+        $('#CaptionsListDiv').empty();
+        clicked = false
         
         var i = 0;
 
         for (item of captions) {
-            //alert(item[1]);
-            //alert($('#m').val());
-            //alert(InputLastVal);
-            // if(InputLastVal == item[1]){
-            //     continue;
-            // }
+            let divClass = "w-1/2 p-2"
+            let btnClass = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg "
 
-            $('#CaptionButton[' + i + ']').innerText = item[1];
-            $('#CaptionButton[' + i + ']').addEventListener("click", function(){ 
-                $('#CaptionsListDiv').hide()
-                socket.emit('vote', {"user": name, "data": item[0]});
-            });    
+            let div = document.createElement("div")
+            div.className = divClass
 
-            //lert()
+            let btn = document.createElement("button")
+            btn.className = btnClass;
+            btn.innerText = item[1];
+            btn.addEventListener("click", function(){ 
+                if (clicked == false) {
+                    this.className = this.className.replace('bg-gray-400', 'bg-blue-700')
+                    this.className = this.className.replace('text-gray-700', 'text-white-700')
+                    socket.emit('vote', {"user": name, "data": item[0]});
+                    clicked = true
+                }
+            });
 
-            // var x = document.createElement("li");
-            // var b = document.createElement("button");
-            // b.innerText = item[1]
-            // b.addEventListener("click", function(){ 
-            //     $('#CaptionsListDiv').hide()
-            //     socket.emit('vote', {"user": name, "data": item[0]});
-            // });        
+            div.appendChild(btn)
 
-            // x.style.flexGrow = 1;
-            // x.style.alignContent = "stretch";
-            // x.style.background = "#00BFFF";
-            // x.style.margin = "5px";
-            // b.style.flexGrow = 1;
-            // b.style.minWidth = "200px";
-
-            // x.appendChild(b);
-            // $('#CaptionsList').append(x);   //Add message to #messages   
-            // //$('#CaptionsListDev2').append(x);         
+            $('#CaptionsListDiv').append(div) 
             i++;
+
             if(i==4) {
                 break;
             }            
