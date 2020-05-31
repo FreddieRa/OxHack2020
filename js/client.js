@@ -113,7 +113,7 @@ $(function() {
             x.style.background = "#00BFFF";
             x.style.margin = "5px";
             b.style.flexGrow = 1;
-            b.style.width = document.width/3;
+            b.style.minWidth = "20px";
             x.appendChild(b);
             $('#CaptionsList').append(x);   //Add message to #messages            
         }
