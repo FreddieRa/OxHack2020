@@ -88,12 +88,12 @@ $(function() {
                 $('#gif').attr('src', img.src)      //bug s.t. img.src is not defined
                 break;
             case 'hide':
-                for (element of data){
+                for (let element of data){
                     $('#'+element).hide()
                 }
                 break;
             case 'show':
-                for (element of data){
+                for (let element of data){
                  $('#'+element).show()
                 }                
                 break;
@@ -102,7 +102,7 @@ $(function() {
 
                 let divClass = "w-1/2 p-2"
                 let h2Class = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg"
-                for (name of data) {
+                for (let name of data) {
                     console.log("Recieving " + name + " from server");
                     
                     let div = document.createElement("div");
@@ -129,7 +129,7 @@ $(function() {
         
         // var i = 0;
 
-        for (item of captions) {
+        for (let item of captions) {
             let divClass = "w-1/2 p-2"
             let btnClass = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg "
 
@@ -172,7 +172,7 @@ $(function() {
         // $('#CaptionsListDiv').empty();
         
         $("#Graph").load(page);
-        // for (user of scores){
+        // for (let user of scores){
         //     var x = document.createElement("li");
         //     var b = document.createElement("h1");
 
