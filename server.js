@@ -134,11 +134,6 @@ io.on('connection', function(socket){
     });
 });
 
-function getGif(tag = "") {
-    let g = new Giph(tag);
-    return g.newGif()
-}
-
 
 http.listen(port, function(){
   console.log('listening on *:' + port);
@@ -269,6 +264,21 @@ setInterval(update, 1000); //time is in ms
 
 
 
+function getGif(tag = "") {
+    //let g = new Giph(tag);
+    //return g.newGif()
+    let url = "https://api.imgflip.com/get_memes"
+    let string = $.ajax({ 
+        url: url, 
+        async: false
+     }).responseText;
+    let json = JSON.parse(string);
+    let memes = json.data.memes
+    let keys = Object.keys(memes)
+    let key = Math.floor(Math.random() * keys.length)
+    let memeurl = memes[keys[key]].url
+    return memeurl
+}
 
 
 

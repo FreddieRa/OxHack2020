@@ -118,7 +118,7 @@ $(function() {
         $('#CaptionsListDiv').empty();
         clicked = false
         
-        var i = 0;
+        // var i = 0;
 
         for (item of captions) {
             let divClass = "w-1/2 p-2"
@@ -126,33 +126,37 @@ $(function() {
 
             let div = document.createElement("div")
             div.className = divClass
-
+                        
             let btn = document.createElement("button")
             btn.className = btnClass;
             btn.innerText = item[1];
-            btn.addEventListener("click", function(){ 
-                if (clicked == false) {
-                    this.className = this.className.replace('bg-gray-400', 'bg-blue-700')
-                    this.className = this.className.replace('text-gray-700', 'text-white-700')
-                    socket.emit('vote', {"user": name, "data": item[0]});
-                    clicked = true
-                }
-            });
+            if (name == item[0]) {
+                $(btnid).css("cursor", "default");
+            } else {
+                btn.addEventListener("click", function(){ 
+                    if (clicked == false) {
+                        this.className = this.className.replace('bg-gray-400', 'bg-blue-700')
+                        this.className = this.className.replace('text-gray-700', 'text-white-700')
+                        socket.emit('vote', {"user": name, "data": item[0]});
+                        clicked = true
+                    }
+                });
+            }
 
             div.appendChild(btn)
 
             $('#CaptionsListDiv').append(div) 
-            i++;
-
-            if(i==4) {
-                break;
-            }            
+            
+            // i++;            
+            // if(i==4) {
+            //     break;
+            // }            
         }
 
-        while(i<4) {
-            $('#CaptionButton[' + i + ']').hide();
-            i++;
-        }
+        // while(i<4) {
+        //     $('#CaptionButton[' + i + ']').hide();
+        //     i++;
+        // }
       
   });
   
@@ -165,13 +169,17 @@ $(function() {
         for (user of scores){
             var x = document.createElement("li");
             var b = document.createElement("h1");
-            b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2]
 
-            x.style.flexGrow = 1;
-            x.style.alignContent = "stretch";
-            x.style.background = "#00BFFF";
-            x.style.margin = "5px";
-            b.style.flexGrow = 1;
+            var ScoreboardStyling = "bg-blue-500 w-" + 200 * user[2] / scores[0][2] ;//Width;
+
+            b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2];
+            b.classname = ScoreboardStyling;
+
+            // x.style.flexGrow = 1;
+            // x.style.alignContent = "stretch";
+            // x.style.background = "#00BFFF";
+            // x.style.margin = "5px";
+            // b.style.flexGrow = 1;
 
             x.appendChild(b);
             $('#CaptionsList').append(x);            
