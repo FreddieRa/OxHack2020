@@ -82,13 +82,13 @@ $(function() {
             case 'user':
                 $('#CaptionsList').empty()
                 for (name of data) {
-                var x = document.createElement("li");
-                var b = document.createElement("h1");
-                b.innerHTML = name
-                 x.appendChild(b);
-                 $('#CaptionsList').append(x);   
-            }
-                 break;   
+                    var x = document.createElement("li");
+                    var b = document.createElement("h1");
+                    b.innerHTML = name
+                    x.appendChild(b);
+                    $('#CaptionsList').append(x);   
+                }
+                break;   
 
          
       }
@@ -113,25 +113,33 @@ $(function() {
             x.style.background = "#00BFFF";
             x.style.margin = "5px";
             b.style.flexGrow = 1;
+            b.style.width = document.width/3;
             x.appendChild(b);
             $('#CaptionsList').append(x);   //Add message to #messages            
         }
       
   });
   
-  socket.on('scores', function(users) {
-      //current votes, score
-      countDownTimer = 10;
-      timerOn = true;
-      $('#CaptionsList').empty();
-      scores = users.sort((a, b) => Number(a[2]) - Number(b.score[2]));
-      for (user of scores){
-      var x = document.createElement("li");
-      var b = document.createElement("h1");
-      b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2]
-       x.appendChild(b);
-       $('#CaptionsList').append(x);
-    }
+    socket.on('scores', function(users) {
+        //current votes, score
+        countDownTimer = 10;
+        timerOn = true;
+        $('#CaptionsList').empty();
+        scores = users.sort((a, b) => Number(a[2]) - Number(b.score[2]));
+        for (user of scores){
+            var x = document.createElement("li");
+            var b = document.createElement("h1");
+            b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2]
+
+            x.style.flexGrow = 1;
+            x.style.alignContent = "stretch";
+            x.style.background = "#00BFFF";
+            x.style.margin = "5px";
+            b.style.flexGrow = 1;
+
+            x.appendChild(b);
+            $('#CaptionsList').append(x);            
+        }
   
   });
 
