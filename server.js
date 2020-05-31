@@ -89,16 +89,6 @@ io.on('connection', function(socket){
                         }
                     }
                     break;
-            case 2:
-                if (user in users && data in users) {
-                    users[user].vote = data
-                    users[data].currentVotes += 1
-                    users[data].score += 10
-                    usersVoted += 1
-                    if (usersVoted == Object.keys(users).length) {
-                        state21()
-                    }
-                }
         }
     });
   
@@ -123,11 +113,18 @@ io.on('connection', function(socket){
         }
     });
 
-    socket.on('vote', function(name){
-        if (name in users && state == 1) {
-            skippedVotes += 1
-            if (skippedVotes / Object.keys(users).length >= 0.5) {
-                state11()
+    socket.on('vote', function(vote){
+        user = vote.user
+        data = vote.data
+        if (user in users && data in users) {
+            console.log(user + " VOTED FOR " + data)
+            users[user].vote = data
+            users[data].currentVotes += 1
+            users[data].score += 10
+            usersVoted += 1
+            if (usersVoted == Object.keys(users).length) {
+                console.log("RUNNING state23()")
+                state23()
             }
         }
     });
@@ -232,9 +229,9 @@ function state23() {
     let u = Object.values(users)
 
     io.emit('scores', [u.map(x => x.currentVotes), u.map(x => x.score)])
-    io.emit('command',{'cmd':'startTimer', 'data':roundTime})
+    io.emit('command',{'cmd':'startTimer', 'data':10})
     
-    countDownTimer = roundTime
+    countDownTimer = 10
     usersVoted = 0
     state = 3
 }
@@ -242,8 +239,8 @@ function state23() {
 
 function state31() {
     io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
-    io.emit('command',{'cmd':'startTimer', 'data':roundTime})
-    countDownTimer = roundTime
+    io.emit('command',{'cmd':'startTimer', 'data':30})
+    countDownTimer = 30
     state = 1
 }
 

@@ -72,7 +72,7 @@ $(function() {
               $('#Counter').text(countDownTimer)
               break;
           case 'loadStored':
-              $('#gif').attr('src', img)
+              $('#gif').attr('src', img.src)
               //show show submission box
               $('#m').show()
               //show submission button
@@ -96,11 +96,14 @@ $(function() {
         $('#CaptionsList').show()
 
         for (item of captions) {
-            var x = $('<li>').text(item[1])
-            x.click(function(){ 
-                socket.emit('vote', item[0]);
+            var x = document.createElement("li");
+            var b = document.createElement("button");
+            b.innerText = item[1]
+            b.addEventListener("click", function(){ 
+                socket.emit('vote', {"user": name, "data": item[0]});
             });
-            $('#messages').append(x);   //Add message to #messages
+            x.appendChild(b);
+            $('#CaptionsList').append(x);   //Add message to #messages
         }
 
         //hide submission box and button
