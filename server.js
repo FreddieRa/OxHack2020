@@ -117,13 +117,16 @@ io.on('connection', function(socket){
             console.log(user + " VOTED FOR " + data)
             if(user == data){
                 console.log("ERROR; you can't vote for yourself!")
+                
             }
-            users[user].vote = data
-            users[data].currentVotes += 1
-            users[data].score += 10
-            usersVoted += 1
-            if (usersVoted == Object.keys(users).length) {
-                state23()
+            else {
+                users[user].vote = data
+                users[data].currentVotes += 1
+                users[data].score += 10
+                usersVoted += 1
+                if (usersVoted == Object.keys(users).length) {
+                    state23()
+                }
             }
         }
     });

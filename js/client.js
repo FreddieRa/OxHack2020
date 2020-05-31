@@ -98,15 +98,9 @@ $(function() {
         countDownTimer = 30
         timerOn = true
         $('#Counter').text(countDownTimer)
-        $('#CaptionsList').empty()
-        //$('#CaptionsList').innerHTML = "";             
-
+        $('#CaptionsList').empty();           
 
         for (item of captions) {
-            //var div="<li class=\"bg-red-300\"><button class=\"rounded\">' + item[1] + '</button></li>";
-            //$('#CaptionsList').text(div);
-            //alert($('#CaptionsList').children.innerHTML);
-
             var x = document.createElement("li");
             var b = document.createElement("button");
             b.innerText = item[1]
@@ -120,9 +114,7 @@ $(function() {
             x.style.margin = "5px";
             b.style.flexGrow = 1;
             x.appendChild(b);
-            $('#CaptionsList').append(x);   //Add message to #messages
-
-            //alert($('#CaptionsList').innerHTML);
+            $('#CaptionsList').append(x);   //Add message to #messages            
         }
       
   });
