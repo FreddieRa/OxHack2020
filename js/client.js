@@ -2,24 +2,28 @@ $(function() {
 var socket = io();    //Gets the socket from the server (?)
 
 var name = null
-var timerOn = false
-$('form').submit(function(){
-    if(name == null) {
-        //if (name is legit)
-            name = $('#m').val()
-            socket.emit('user', name); //Sending a message to server
-    } else {
-        let data = $('#m').val
-        socket.emit('chat message', {"user": name, "data": data}); //Sending a message to server
-    }
-    $('#m').val('');  //Setter
-    return false;
-});
+timerOn = true
+countDownTimer = 60;
+$('#SkipBtn').hide()
+
 
 $(document).ready(function(){ 
     $("#SkipButton").click(function(){ 
         socket.emit('skip', name);
     }); 
+    $('#SubmitBtn').click(function(){
+        console.log("here")
+        if(name == null) {
+            //if (name is legit)
+                name = $('#m').val()
+                socket.emit('user', name); //Sending a message to server
+        } else {
+            let data = $('#m').val
+            socket.emit('chat message', {"user": name, "data": data}); //Sending a message to server
+        }
+        $('#m').val('');  //Setter
+        return false;
+    });
 }); 
 
 socket.on('chat message', function(msg){    //Recieving from server
@@ -46,28 +50,28 @@ socket.on('command', function(cmdDict) {
             img.src = data;
             break;
         case 'forceLoad': // Tells client to display loaded gif now
-            $('#gif').attr('display', 'block')
-            $('#SkipBtn').attr('display', 'block')
+            $('#gif').show()
+            $('#SkipBtn').show()
             $('#gif').attr('src', data)
             //show show submission box
-            $('#m').attr('display','block')
+            $('#m').show()
             //show submission button
-            $('#SubmitBtn').attr('display','block')
+            $('#SubmitBtn').show()
             break;
         case 'startTimer':
             countDownTimer = data;
             timerOn = true
-            $('#Counter').attr('display', 'block')
-            $('#Counter').attr('text', countDownTimer)
+            $('#Counter').show()
+            $('#Counter').text(countDownTimer)
             break;
         case 'loadStored':
             $('#gif').attr('src', img)
             //show show submission box
-            $('#m').attr('display','block')
+            $('#m').show()
             //show submission button
-            $('#SubmitBtn').attr('display','block')
+            $('#SubmitBtn').show()
             //show SkipButton
-            $('#SkipBtn').attr('display', 'block')
+            $('#SkipBtn').show()
             break;
         case 'hide':
             break;
@@ -77,12 +81,13 @@ socket.on('command', function(cmdDict) {
 socket.on('captions', function(captions) {
     countDownTimer = //sometime;
     timerOn = true
-    $('#Counter').attr('display', 'block')
-    $('#Counter').attr('text', countDownTimer)
+    $('#Counter').show()
+    $('#Counter').text(countDownTimer)
+    $('#CaptionList').show()
     //hide submission box and button
-    $('#m').attr('display','none')
-    $('#SubmitBtn').attr('display','none')
-    $('#SkipBtn').attr('display', 'none')
+    $('#m').hide()
+    $('#SubmitBtn').hide()
+    $('#SkipBtn').hide()
 
     
 });
@@ -97,10 +102,10 @@ function update() {
     if (timerOn){
         if (countDownTimer > 0) {
             countDownTimer -= 1
-            $('#Counter').attr('text', countDownTimer)
+            $('#Counter').text(countDownTimer)
         }
         else{
-            timerOn = 0
+            timerOn = false
             $('#Counter').attr('display', 'none')
         }
     }
