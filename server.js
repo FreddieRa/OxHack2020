@@ -117,7 +117,7 @@ function Room(roomID) {
         socket.on('skip', function(name){
             if (name in t.users && t.state == 1) {
                 t.skippedVotes += 1
-                if (skippedVotes / Object.keys(t.users).length >= 0.5) {
+                if (t.skippedVotes / Object.keys(t.users).length >= 0.5) {
                     t.state11()
                 }
             }
