@@ -9,10 +9,23 @@ $(function() {
         console.lo
     }
 
+    // States
+    // 0: waiting to join room or make new one
+    // 1: waiting to enter name or press start
+    // 2: In game
+
+    // Transitions
+    // 0 -> 1: Hide "make room", join the required room
+    // 1 -> 2: Hide ["start", "UsersListDiv"]
+
+    state = 0
     name = ""
     timerOn = false
     countDownTimer = 60;
     clicked = false;
+    roomID = ""
+
+    // HTML jQuery initalisation
 
     $('#StartBtn').hide()
     $('#SkipBtn').hide()
@@ -27,32 +40,9 @@ $(function() {
         socket.emit('start', null);
     });
 
-
-    function submit() {
-        console.log("Name " + name)
-        if ($('#m').val().length == 0) {
-            return;
-        }
-        $('#m').attr("placeholder", "")
-        console.log($('#m').val())
-        if(name == "") {
-            //if (name is legit)
-                $('#CaptionsSubmitDiv').hide()
-                $('#StartBtn').show()
-
-                name = $('#m').val()
-                console.log(name)
-                socket.emit('user', name); //Sending a message to server
-
-        } else {
-            let data = $('#m').val()
-            console.log(data)
-            socket.emit('chat message', {"user": name, "data": data}); //Sending a message to server
-        }
-        $('#m').val('');  //Setter
-        $('#CaptionsSubmitDiv').hide()        
-        return false;
-    }
+    $("#CreateRoomBtn").click(function(){ 
+        socket.emit('newRoom', null);
+    });
 
     $('#m').keyup(function(e){
         if (e.keyCode == 13) {submit()}
@@ -61,6 +51,88 @@ $(function() {
     $('#SubmitBtn').click(function(){
         submit()
     });
+
+
+    $('#CreateRoomBtn').click(function(){
+        console.log("newRoom pressed")
+        socket.emit("newRoom", null, function(answer) {
+            if (state == 0) {
+                console.log("Joining room with id: " + answer);
+                socket = io('/'+answer);
+                roomID = answer;
+                $('#CreateRoomBtn').hide()
+                $('#m').removeClass("border-red-500").addClass("border-blue-500")
+                state = 1
+            }
+        });
+    })
+
+    function submit() {
+        let val = $('#m').val()
+        if (val.length == 0) {
+            return;
+        }
+
+        switch (state) {
+            case 0:
+                socket.emit("join", val, function (answer) {
+                    if (state == 0) {
+                        if (answer) {
+                            console.log("Joining room with id: " + val);
+                            socket = io('/'+val);
+                            roomID = val;
+                            $('#CreateRoomBtn').hide()
+                            $('#m').removeClass("border-red-500").addClass("border-blue-500")
+                            state = 1
+                        } else {
+                            $('#m').attr('placeholder', "Room ID " + val + " does not exist, please try again")
+                            $('#m').removeClass("border-blue-500").addClass("border-red-500")
+                            state = 0
+                        }
+                    }  
+                })
+                $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
+                break;
+
+            case 1:
+                $('#CaptionsSubmitDiv').hide()
+                $('#StartBtn').show()
+                name = $('#m').val()
+                socket.emit('user', name); //Sending a message to server
+                $('#m').attr("placeholder", "")
+                state = 2;
+                break;
+
+            case 2:
+                let data = $('#m').val()
+                console.log(data)
+                socket.emit('chat message', {"user": name, "data": data}); //Sending a message to server
+                $('#CaptionsSubmitDiv').hide()  
+                break;
+        }
+
+        $('#m').val('');  //Setter      
+        return false;
+    }
+
+
+    socket.on('join', function(roomid) {
+        if (state == 0) {
+            console.log("Joining room with id: " + roomid);
+            socket = io('/'+roomid);
+            $('#CreateRoomBtn').hide()
+            $('#m').removeClass("border-red-500").addClass("border-blue-500")
+            state = 1
+        }
+    })
+
+    socket.on('failedJoining', function(roomid) {
+        if (state == 0) {
+            $('#m').attr('placeholder', "Room ID " + roomid + " does not exist, please try again")
+            $('#m').removeClass("border-blue-500").addClass("border-red-500")
+            state = 0
+        }
+    })
 
   
   

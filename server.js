@@ -17,20 +17,166 @@ let imported = document.createElement('script');
 imported.src = "./js/user.js";
 document.head.appendChild(imported);
 
-var roundTime = 30;
-var countDownTimer = roundTime;
-let messages = 0;
-let users = {}
+let rooms = {}
 
-let gotGif = false;
-let usersSubmitted = 0;
-let usersVoted = 0;
-let skippedVotes = 0;
+io.on('connection', function(socket){
+    socket.on('newRoom', function(id, callback) {
+        let roomid = Math.floor(Math.random()*90000) + 10000
+        let room = new Room(roomid)
+        rooms[roomid] = room
+        console.log(callback)
+        callback(roomid)
+    })
 
-let currentMeme = "";
-let nextMeme = "";
-let maxVotes = -1;
-let winningSubmission = "";
+    socket.on('joinRoom', function(roomid, callback) {
+        if (roomid in rooms) {
+            callback(true)
+        } else {
+            callback(false)
+        }
+    })
+});
+
+function Room(roomID) {
+    this.roomID = roomID;
+    this.roundTime = 30;
+    this.countDownTimer = this.roundTime;
+    this.messages = 0;
+    this.users = {}
+
+    this.gotGif = false;
+    this.usersSubmitted = 0;
+    this.usersVoted = 0;
+    this.skippedVotes = 0;
+
+    this.currentMeme = "";
+    this.nextMeme = "";
+    this.maxVotes = -1;
+    this.winningSubmission = "";
+    this.state = 0
+
+    this.nsp = io.of('/'+roomID);
+
+    this.nsp.on('connection', function(socket){
+        socket.on('chat message', function(msg){
+            let user = msg.user
+            let data = msg.data
+            switch (state) {
+                case 0:
+                    break;
+                case 1:
+                    if (user in this.users) {
+                        console.log(user + " sent in " + data)
+                        this.users[user].currentCaption = data
+                        usersSubmitted += 1
+                        if (usersSubmitted == Object.keys(this.users).length) {
+                            console.log("state12() called");
+                            this.state12()
+                        }
+                    }
+                    break;
+            }
+        });
+    
+        socket.on('user', function(name){
+            //Send error back for duplicate names
+            if (name in this.users == false && this.state == 0) { 
+                users[name] = new User(name)
+                this.nsp.emit('command',{'cmd':'user', 'data': Object.keys(this.users)})
+                console.log("Sending " + name + " to clients");
+                console.log("Num current useres " + Object.keys(this.users).length);
+            }
+        });
+
+        socket.on('start', function(_){
+            this.state01()
+        });
+
+        socket.on('reset', function(_){
+            this.state = 0
+            this.messages = 0;
+            this.users = {}
+
+            this.gotGif = false;
+            this.usersSubmitted = 0;
+            this.usersVoted = 0;
+            this.skippedVotes = 0;
+
+            this.currentMeme = "";
+            this.nextMeme = "";
+            this.maxVotes = -1;
+            this.nsp.emit('refresh', null)
+        });
+
+        socket.on('skip', function(name){
+            if (name in this.users && this.state == 1) {
+                this.skippedVotes += 1
+                if (skippedVotes / Object.keys(this.users).length >= 0.5) {
+                    this.state11()
+                }
+            }
+        });
+
+        socket.on('vote', function(vote){
+            let u = this.users
+            user = vote.user
+            data = vote.data
+            if (user in u && data in u) {
+                console.log(user + " VOTED FOR " + data)
+                if(false){
+                        console.log("ERROR; you can't vote for yourself!")
+                }
+                else {
+                    u[user].vote = data
+                    u[data].currentVotes += 1
+                    if (u[data].currentVotes >= this.maxVotes) {
+                        this.maxVotes = u[data].currentVotes
+                        this.winningSubmission = u[data].currentCaption
+                    }
+                    u[data].score += 10
+                    this.usersVoted += 1
+                    if (this.usersVoted == Object.keys(u).length) {
+                        this.state23()
+                    }
+                }
+            }
+        });
+    });
+
+    this.update = function() {
+        switch (this.state) {
+            case 0: 
+                break;
+    
+            case 1:
+                if (this.gotGif == false) {
+                    let url = getGif()
+                    this.nsp.emit('command',{'cmd':'preload', 'data':url}) // Tells client to preload gif
+                    this.gotGif = true
+                }
+    
+                this.countDownTimer -= 1
+                if (this.countDownTimer == 0) {
+                    this.state12()
+                }
+                break;
+            case 2:
+                this.countDownTimer -= 1
+                if (this.countDownTimer == 0) {
+                    this.state23()
+                }
+                break;
+            case 3:
+                this.countDownTimer -= 1
+                if (this.countDownTimer == 0) {
+                    this.state31()
+                }
+        }
+    }
+
+}
+
+
 
 let states = {
    0:  "waiting for users to join", 
@@ -53,8 +199,6 @@ let states = {
     // LOOP END
 }
 
-let state = 0
-
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -75,93 +219,6 @@ app.use('/js', express.static(__dirname + '/js'));
 
 app.use('/resources/gifs', express.static(__dirname + '/resources/gifs'));
 
-io.on('connection', function(socket){
-    socket.on('chat message', function(msg){
-        let user = msg.user
-        let data = msg.data
-        switch (state) {
-            case 0:
-                break;
-            case 1:
-                if (user in users) {
-                    console.log(user + " sent in " + data)
-                    users[user].currentCaption = data
-                    usersSubmitted += 1
-                    if (usersSubmitted == Object.keys(users).length) {
-                        console.log("state12() called");
-                        state12()
-                    }
-                }
-                break;
-        }
-    });
-  
-    socket.on('user', function(name){
-        //Send error back for duplicate names
-        if (name in users == false && state == 0) { 
-            users[name] = new User(name)
-            io.emit('command',{'cmd':'user', 'data': Object.keys(users)})
-            console.log("Sending " + name + " to clients");
-            console.log("Num current useres " + Object.keys(users).length);
-        }
-    });
-
-    socket.on('start', function(_){
-        state01()
-    });
-
-    socket.on('reset', function(_){
-        state = 0
-        messages = 0;
-        users = {}
-        
-        gotGif = false;
-        usersSubmitted = 0;
-        usersVoted = 0;
-        skippedVotes = 0;
-        
-        currentMeme = "";
-        nextMeme = "";
-        maxVotes = -1;
-        io.emit('refresh', null)
-
-    });
-
-    socket.on('skip', function(name){
-        if (name in users && state == 1) {
-            skippedVotes += 1
-            if (skippedVotes / Object.keys(users).length >= 0.5) {
-                state11()
-            }
-        }
-    });
-
-    socket.on('vote', function(vote){
-        user = vote.user
-        data = vote.data
-        if (user in users && data in users) {
-            console.log(user + " VOTED FOR " + data)
-            if(false){
-                console.log("ERROR; you can't vote for yourself!")
-
-            }
-            else {
-                users[user].vote = data
-                users[data].currentVotes += 1
-                if (users[data].currentVotes >= maxVotes) {
-                    maxVotes = users[data].currentVotes
-                    winningSubmission = users[data].currentCaption
-                }
-                users[data].score += 10
-                usersVoted += 1
-                if (usersVoted == Object.keys(users).length) {
-                    state23()
-                }
-            }
-        }
-    });
-});
-
 
 http.listen(port, function(){
   console.log('listening on *:' + port);
@@ -169,33 +226,8 @@ http.listen(port, function(){
 
 
 function update() {
-    switch (state) {
-        case 0: 
-            break;
-
-        case 1:
-            if (gotGif == false) {
-                let url = getGif()
-                io.emit('command',{'cmd':'preload', 'data':url}) // Tells client to preload gif
-                gotGif = true
-            }
-
-            countDownTimer -= 1
-            if (countDownTimer == 0) {
-                state12()
-            }
-            break;
-        case 2:
-            countDownTimer -= 1
-            if (countDownTimer == 0) {
-                state23()
-            }
-            break;
-        case 3:
-            countDownTimer -= 1
-            if (countDownTimer == 0) {
-                state31()
-            }
+    for (let room of Object.values(rooms)) {
+        room.update()
     }
 }
 
