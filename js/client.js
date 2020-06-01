@@ -97,7 +97,7 @@ $(function() {
                 name = $('#m').val()
                 socket.emit('user', name); //Sending a message to server
                 $('#m').attr("placeholder", "")
-                $('SubmitBtn').html("Submit")
+                $('#SubmitBtn').html("Submit")
                 state = 2;
                 break;
 
