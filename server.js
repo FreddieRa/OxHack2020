@@ -17,20 +17,297 @@ let imported = document.createElement('script');
 imported.src = "./js/user.js";
 document.head.appendChild(imported);
 
-var roundTime = 30;
-var countDownTimer = roundTime;
-let messages = 0;
-let users = {}
+// Dictionary containing rooms referenced by id
+let rooms = {}
 
-let gotGif = false;
-let usersSubmitted = 0;
-let usersVoted = 0;
-let skippedVotes = 0;
+// Socket for initial connections from users
+io.on('connection', function(socket){
+    // Generate a new room and return its id in the callback
+    socket.on('newRoom', function(callback) {
+        let roomid = Math.floor(Math.random()*90000) + 10000
+        let room = new Room(roomid)
+        console.log("New room created with id " + roomid)
+        rooms[roomid] = room
+        callback(roomid)
+    })
 
-let currentMeme = "";
-let nextMeme = "";
-let maxVotes = -1;
-let winningSubmission = "";
+    // Attempt to join a room, and return success in callback
+    socket.on('joinRoom', function(roomid, callback) {
+        if (roomid in rooms) {
+            callback(true)
+        } else {
+            callback(false)
+        }
+    })
+});
+
+function Room(roomID) {
+    this.roomID = roomID;
+    this.roundTime = 30;
+    this.countDownTimer = this.roundTime;
+    this.messages = 0;
+    this.users = {}
+
+    this.gotGif = false;
+    this.usersSubmitted = 0;
+    this.usersVoted = 0;
+    this.skippedVotes = 0;
+
+    this.currentMeme = "";
+    this.nextMeme = "";
+    this.maxVotes = -1;
+    this.winningSubmission = "";
+    this.state = 0
+
+    this.nsp = io.of('/'+this.roomID);
+
+    let t = this
+    this.nsp.on('connection', function(socket){
+        socket.on('chat message', function(msg){
+            let user = msg.user
+            let data = msg.data
+
+            if (user in t.users) {
+                console.log(user + " sent in " + data)
+                t.users[user].currentCaption = data
+                t.usersSubmitted += 1
+                if (t.usersSubmitted == Object.keys(t.users).length) {
+                    console.log("state12() called");
+                    t.state12()
+                }
+            }
+        });
+    
+        socket.on('user', function(name){
+            //Send error back for duplicate names
+            console.log(t.users)
+            if (name in t.users == false && t.state == 0) { 
+                t.users[name] = new User(name)
+                t.nsp.emit('command',{'cmd':'user', 'data': Object.keys(t.users)})
+                console.log("Sending " + name + " to clients");
+                console.log("Num current useres " + Object.keys(t.users).length);
+            }
+        });
+
+        socket.on('getUsers', function(){
+            //Send error back for duplicate names
+            t.nsp.emit('command',{'cmd':'user', 'data': Object.keys(t.users)})
+        });
+
+        socket.on('start', function(_){
+            t.state01()
+        });
+
+        socket.on('reset', function(_){
+            t.state = 0
+            t.messages = 0;
+            t.users = {}
+
+            t.gotGif = false;
+            t.usersSubmitted = 0;
+            t.usersVoted = 0;
+            t.skippedVotes = 0;
+
+            t.currentMeme = "";
+            t.nextMeme = "";
+            t.maxVotes = -1;
+            t.nsp.emit('refresh', null)
+        });
+
+        socket.on('skip', function(name){
+            if (name in t.users && t.state == 1) {
+                t.skippedVotes += 1
+                if (skippedVotes / Object.keys(t.users).length >= 0.5) {
+                    t.state11()
+                }
+            }
+        });
+
+        socket.on('vote', function(vote){
+            let u = t.users
+            user = vote.user
+            data = vote.data
+            if (user in u && data in u) {
+                console.log(user + " VOTED FOR " + data)
+                if(false){
+                        console.log("ERROR; you can't vote for yourself!")
+                }
+                else {
+                    u[user].vote = data
+                    u[data].currentVotes += 1
+                    if (u[data].currentVotes >= t.maxVotes) {
+                        t.maxVotes = u[data].currentVotes
+                        t.winningSubmission = u[data].currentCaption
+                    }
+                    u[data].score += 10
+                    t.usersVoted += 1
+                    if (t.usersVoted == Object.keys(u).length) {
+                        t.state23()
+                    }
+                }
+            }
+        });
+    });
+
+    this.update = function() {
+        switch (this.state) {
+            case 0: 
+                break;
+    
+            case 1:
+                if (this.gotGif == false) {
+                    let url = this.getMeme()
+                    this.nsp.emit('command',{'cmd':'preload', 'data':url}) // Tells client to preload gif
+                    this.gotGif = true
+                }
+    
+                this.countDownTimer -= 1
+                if (this.countDownTimer == 0) {
+                    this.state12()
+                }
+                break;
+            case 2:
+                this.countDownTimer -= 1
+                if (this.countDownTimer == 0) {
+                    this.state23()
+                }
+                break;
+            case 3:
+                this.countDownTimer -= 1
+                if (this.countDownTimer == 0) {
+                    this.state31()
+                }
+        }
+    }
+
+    this.state01 = function() {
+        // Hide start from all users -> fetch gif -> show countdown -> show gif
+        // io.emit('command', {'cmd':'hide','data': 'start'});
+    
+        let url = this.getMeme()
+        this.currentMeme = this.nextMeme
+        this.nsp.emit('command',{'cmd':'forceLoad', 'data': url}) // Tells client to load and display gif
+        this.nsp.emit('command',{'cmd':'startTimer', 'data': this.roundTime})     
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv", "UsersListDiv", "RoomID"]})
+        this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
+    
+        this.countDownTimer = this.roundTime
+    
+        this.state = 1
+    }
+    
+    this.state11 = function() {
+        // counting down, registering skip votes, accepting submissions
+            //      If skipped: Show new gif -> Back to waiting for all users
+        if (this.gotGif == false) {
+            let url = this.getMeme()
+            this.nsp.emit('command',{'cmd': 'forceLoad', 'data': url}) // Tells client to load and display gif
+        } else {
+            this.nsp.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif (with countdown 0)
+        }
+        this.currentMeme = this.nextMeme
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","UsersListDiv"]})
+        this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
+        this.nsp.emit('command',{'cmd':'startTimer', 'data':this.roundTime})
+    
+        this.gotGif = false;
+        this.countDownTimer = this.roundTime
+        this.skippedVotes = 0
+        this.usersSubmitted = 0
+    }
+    
+    this.state12 = function() {
+        // After: 
+        //      Else: Hide submission box -> Send submissions to user -> Reset counter
+        
+        let mapped = Object.values(this.users).map(x => [x.username, x.currentCaption])
+        this.nsp.emit('captions', mapped); // On receiving captions, hide submissions
+        // io.emit('command',{'cmd': 'show', 'data': 'CaptionsListDiv'})
+        this.nsp.emit('command',{'cmd':'startTimer', 'data': this.roundTime})
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","SkipBtn","CaptionsSubmitDiv","UsersListDiv", "BestMeme", "RoomID"]})
+        this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","CaptionsListDiv"]})
+        this.gotGif = false;
+        this.countDownTimer = this.roundTime
+        this.skippedVotes = 0
+        this.usersSubmitted = 0
+        this.state = 2
+    }
+    
+    
+    this.state23 = function() {
+        // During: Recieving votes, Counting Down
+        // Stop Condition: All users have voted || Countdown == 0
+        // After: Send scores to all users -> wait 30 seconds -> change back to waiting for submissions with new gif
+        // LOOP END
+        let u = Object.values(this.users)
+    
+        
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtn","UsersListDiv"]})
+        this.nsp.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
+        this.nsp.emit('command',{'cmd':'show', 'data': ["loader"]})
+    
+        
+        let text = this.winningSubmission.split('\\')
+    
+        let data = {"template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": text[0], "text1": text[1]}
+        console.log(JSON.stringify(data))
+    
+        let n = this.nsp
+        $.post("https://api.imgflip.com/caption_image", data, function(result) {
+            console.log(result)
+            let url = JSON.parse(result).data.url
+            n.emit('winningMeme', url)
+        }, "html")
+    
+        this.nsp.emit('winner', this.winningSubmission)
+        this.nsp.emit('command',{'cmd': 'startTimer', 'data':6})
+    
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
+        
+        for (let user of Object.values(this.users)) {
+            user.currentCaption = ""
+            user.currentVotes = 0
+            user.vote = -1
+        }
+    
+        this.countDownTimer = 6
+        this.usersVoted = 0
+        this.maxVotes = -1
+        this.state = 3
+        this.currentMeme = this.nextMeme
+    }
+    
+    
+    this.state31 = function() {
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "BestMeme"]})
+        this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
+        this.nsp.emit('command',{'cmd':'startTimer', 'data':30})
+        this.countDownTimer = 30
+        this.state = 1
+    }
+    
+    this.getMeme = function(tag = "") {
+        //let g = new Giph(tag);
+        //return g.newGif()
+        let url = "https://api.imgflip.com/get_memes"
+        let string = $.ajax({ 
+            url: url, 
+            async: false
+         }).responseText;
+        let json = JSON.parse(string);
+        let memes = json.data.memes
+        let keys = Object.keys(memes)
+        let key = Math.floor(Math.random() * keys.length)
+        let memeurl = memes[keys[key]].url
+
+        // This is a terrible side effect and should be removed.......but it works for now
+        this.nextMeme = memes[keys[key]].id
+        return memeurl
+    }
+    
+}
+
+
 
 let states = {
    0:  "waiting for users to join", 
@@ -53,8 +330,6 @@ let states = {
     // LOOP END
 }
 
-let state = 0
-
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -75,93 +350,6 @@ app.use('/js', express.static(__dirname + '/js'));
 
 app.use('/resources/gifs', express.static(__dirname + '/resources/gifs'));
 
-io.on('connection', function(socket){
-    socket.on('chat message', function(msg){
-        let user = msg.user
-        let data = msg.data
-        switch (state) {
-            case 0:
-                break;
-            case 1:
-                if (user in users) {
-                    console.log(user + " sent in " + data)
-                    users[user].currentCaption = data
-                    usersSubmitted += 1
-                    if (usersSubmitted == Object.keys(users).length) {
-                        console.log("state12() called");
-                        state12()
-                    }
-                }
-                break;
-        }
-    });
-  
-    socket.on('user', function(name){
-        //Send error back for duplicate names
-        if (name in users == false && state == 0) { 
-            users[name] = new User(name)
-            io.emit('command',{'cmd':'user', 'data': Object.keys(users)})
-            console.log("Sending " + name + " to clients");
-            console.log("Num current useres " + Object.keys(users).length);
-        }
-    });
-
-    socket.on('start', function(_){
-        state01()
-    });
-
-    socket.on('reset', function(_){
-        state = 0
-        messages = 0;
-        users = {}
-        
-        gotGif = false;
-        usersSubmitted = 0;
-        usersVoted = 0;
-        skippedVotes = 0;
-        
-        currentMeme = "";
-        nextMeme = "";
-        maxVotes = -1;
-        io.emit('refresh', null)
-
-    });
-
-    socket.on('skip', function(name){
-        if (name in users && state == 1) {
-            skippedVotes += 1
-            if (skippedVotes / Object.keys(users).length >= 0.5) {
-                state11()
-            }
-        }
-    });
-
-    socket.on('vote', function(vote){
-        user = vote.user
-        data = vote.data
-        if (user in users && data in users) {
-            console.log(user + " VOTED FOR " + data)
-            if(false){
-                console.log("ERROR; you can't vote for yourself!")
-
-            }
-            else {
-                users[user].vote = data
-                users[data].currentVotes += 1
-                if (users[data].currentVotes >= maxVotes) {
-                    maxVotes = users[data].currentVotes
-                    winningSubmission = users[data].currentCaption
-                }
-                users[data].score += 10
-                usersVoted += 1
-                if (usersVoted == Object.keys(users).length) {
-                    state23()
-                }
-            }
-        }
-    });
-});
-
 
 http.listen(port, function(){
   console.log('listening on *:' + port);
@@ -169,154 +357,9 @@ http.listen(port, function(){
 
 
 function update() {
-    switch (state) {
-        case 0: 
-            break;
-
-        case 1:
-            if (gotGif == false) {
-                let url = getGif()
-                io.emit('command',{'cmd':'preload', 'data':url}) // Tells client to preload gif
-                gotGif = true
-            }
-
-            countDownTimer -= 1
-            if (countDownTimer == 0) {
-                state12()
-            }
-            break;
-        case 2:
-            countDownTimer -= 1
-            if (countDownTimer == 0) {
-                state23()
-            }
-            break;
-        case 3:
-            countDownTimer -= 1
-            if (countDownTimer == 0) {
-                state31()
-            }
+    for (let room of Object.values(rooms)) {
+        room.update()
     }
-}
-
-
-function state01() {
-    // Hide start from all users -> fetch gif -> show countdown -> show gif
-    // io.emit('command', {'cmd':'hide','data': 'start'});
-
-    let url = getGif()
-    currentMeme = nextMeme
-    io.emit('command',{'cmd':'forceLoad', 'data':url}) // Tells client to load and display gif
-    io.emit('command',{'cmd':'startTimer', 'data':roundTime})     
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv", "UsersListDiv"]})
-    io.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
-
-    countDownTimer = roundTime
-
-    state = 1
-}
-
-function state11() {
-    // counting down, registering skip votes, accepting submissions
-        //      If skipped: Show new gif -> Back to waiting for all users
-    if (gotGif == false) {
-        let url = getGif()
-        io.emit('command',{'cmd': 'forceLoad', 'data': url}) // Tells client to load and display gif
-    } else {
-        io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif (with countdown 0)
-    }
-    currentMeme = nextMeme
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","UsersListDiv"]})
-    io.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
-    io.emit('command',{'cmd':'startTimer', 'data':roundTime})
-
-    gotGif = false;
-    countDownTimer = roundTime
-    skippedVotes = 0
-    usersSubmitted = 0
-}
-
-function state12() {
-    // After: 
-    //      Else: Hide submission box -> Send submissions to user -> Reset counter
-    
-    let mapped = Object.values(users).map(x => [x.username, x.currentCaption])
-    io.emit('captions', mapped); // On receiving captions, hide submissions
-    // io.emit('command',{'cmd': 'show', 'data': 'CaptionsListDiv'})
-    io.emit('command',{'cmd':'startTimer', 'data':roundTime})
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","SkipBtn","CaptionsSubmitDiv","UsersListDiv", "BestMeme"]})
-    io.emit('command',{'cmd':'show', 'data': ["gif","Counter","CaptionsListDiv"]})
-    gotGif = false;
-    countDownTimer = roundTime
-    skippedVotes = 0
-    usersSubmitted = 0
-    state = 2
-}
-
-
-function state23() {
-    // During: Recieving votes, Counting Down
-    // Stop Condition: All users have voted || Countdown == 0
-    // After: Send scores to all users -> wait 30 seconds -> change back to waiting for submissions with new gif
-    // LOOP END
-    let u = Object.values(users)
-
-    
-    io.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtn","UsersListDiv"]})
-    io.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
-    io.emit('command',{'cmd':'show', 'data': ["loader"]})
-
-    // SHOW LEADERBOARD
-    // io.emit('command',{'cmd': 'show', 'data': 'LEADERBOARD'})
-    // scores = Object.values(users).sort((a, b) => int(a.score) - int(b.score));
-    // csv = ""
-    // for (user of scores){
-    //     csv = csv+user.username+","+user.score+"\n"
-    // }
-    // const fs = require('fs');
-    // const output = require('d3node-output');
-    // const d3 = require('d3-node')().d3;
-    // const d3nBar = require('d3node-barchart');
-    // const data = d3.csvParse(csv);
-    // page = d3nBar({data: data})
-    // console.log("Graph: "+page)
-    // io.emit('scores', page)
-    
-    let text = winningSubmission.split('\\')
-
-    let data = {"template_id": currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": text[0], "text1": text[1]}
-
-    $.post("https://api.imgflip.com/caption_image", data, function(result) {
-        console.log(result)
-        let url = JSON.parse(result).data.url
-        io.emit('winningMeme', url)
-    }, "html")
-
-    io.emit('winner',winningSubmission)
-    io.emit('command',{'cmd': 'startTimer', 'data':6})
-
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
-    
-    for (let user of Object.values(users)) {
-        user.currentCaption = ""
-        user.currentVotes = 0
-        user.vote = -1
-    }
-
-    countDownTimer = 6
-    usersVoted = 0
-    maxVotes = -1
-    state = 3
-    currentMeme = nextMeme
-}
-
-
-function state31() {
-    io.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "BestMeme"]})
-    io.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
-    io.emit('command',{'cmd':'startTimer', 'data':30})
-    countDownTimer = 30
-    state = 1
 }
 
 
@@ -324,22 +367,6 @@ setInterval(update, 1000); //time is in ms
 
 
 
-function getGif(tag = "") {
-    //let g = new Giph(tag);
-    //return g.newGif()
-    let url = "https://api.imgflip.com/get_memes"
-    let string = $.ajax({ 
-        url: url, 
-        async: false
-     }).responseText;
-    let json = JSON.parse(string);
-    let memes = json.data.memes
-    let keys = Object.keys(memes)
-    let key = Math.floor(Math.random() * keys.length)
-    let memeurl = memes[keys[key]].url
-    nextMeme = memes[keys[key]].id
-    return memeurl
-}
 
 
 
