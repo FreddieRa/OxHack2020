@@ -31,6 +31,7 @@ $(function() {
     $('#Counter').hide()
     $('#loader').hide()
     $('#RoomID').hide()
+    $('#WinnerName').hide()
 
     $("#SkipBtn").click(function(){ 
         socket.emit('skip', name);
@@ -141,6 +142,9 @@ $(function() {
                     countDownTimer = data;
                     timerOn = true
                     $('#Counter').text(countDownTimer) 
+                    break;
+                case 'winnerName':
+                    $('#WinnerName').text("Winner: "+data)
                     break;
                 case 'loadStored':
                     $('#gif').attr('src', img.src)      //bug s.t. img.src is not defined
@@ -260,7 +264,7 @@ $(function() {
         console.log(url);
         $("#winning").show()
         $("#winning").attr("src", url)
-        $("#winning").one('load', function(){$("#loader").hide(), $("#BestMeme").show()})
+        $("#winning").one('load', function(){$("#loader").hide(), $("#BestMeme").show(), $('#WinnerName').show()})
     });
 
     s.on('refresh', function(_) {
