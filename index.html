@@ -1,43 +1,78 @@
+<!doctype html>
+<link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
 <html>
-<head>
-<title> Worxeter </title>
-</head>
-<body>
+  <head>
+    <title>Giff me a break</title>
+    <base href="/"> 
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <link href="/css/StyleSheet.css" rel="stylesheet">
+  </head>
+  <body>
+    <center>
+      <div class="flex flex-col mx-auto w-8 items-center justify-center rounded my-4 py-4">
+        <h1 id="Counter" class="text-blue-500 text-4xl">60</h1>
+      </div>
+        <div class="flex-col w-full py-8 align-center">
+          <div class="flex-none w-2/5"></div>
+          <img id="gif" src="resources/gifs/HelloThere.gif" class="flex-none w-2/5 rounded-lg shadow-2xl max-h-1/2">
+        </div>
 
-    <script>
-        function response(r) {
-            var gif;
-            var width;
-            var height;
-            var buttons = document.getElementById("buttons");
-            if (r) {
-                gif = "resources/gifs/GeneralKenobi.gif"
-                width = 356
-                height = 200
-            }
-            else {
-                gif = "resources/gifs/Dissapointed.gif"
-                width = 500
-                height = 193
-            }
-            document.getElementById('myImage').src = gif;
-            document.getElementById('myImage').width = width;
-            document.getElementById('myImage').height = height;
-            buttons.style.display = "none";
-        }
+        <div class="flex-col">
+        <div id="RoomStuff" class="flex-row w-1/5 my-auto">
+            <h2 id="RoomID" class="bg-transparent text-blue-700 font-semibold py-2 px-4 "></h2>
+            </div>
+
+        <div id="CaptionsSubmitDiv" class="flex-wrap w-1/3">
+          <input id="m" autocomplete="off" class="flex-grow p-4 bg-transparent text-blue-700 font-semibold py-2 w-full border border-blue-500 rounded"
+          placeholder="Submit an ID to join that room, or make a new one!"/>
+          
+          
+          <div class="flex-row">
+          <button id="SubmitBtn" class="flex-none bg-transparent hover:bg-blue-300 text-blue-700 font-semibold py-2 my-4 px-4 border border-blue-500 rounded">
+              Join Room
+            </button>
+            <button id="CreateRoomBtn" class="flex-none bg-transparent hover:bg-blue-300 text-blue-700 font-semibold py-2 my-4 px-4 border border-blue-500 rounded">
+                Create Room
+              </button>
+          </div>
+        </div>
+        <div class="flex-none w-1/5  my-auto">
+
+            <button id="SkipBtn" class="bg-transparent hover:bg-blue-300 text-blue-700 font-semibold py-2 px-4 border border-blue-500 rounded">
+              Skip
+            </button>            
+          </div>
+        </div>
+
+          <div id="UsersListDiv" class="flex content-start flex-wrap w-1/3">
+            <!-- <div class="w-1/2 p-2">
+              <h2 id="UsersHeader[0]" class="text-gray-700 text-center bg-gray-400 p-2 rounded-lg" onclick="click">1asdfasdf</h2>
+            </div> -->
+
+          </div>
+
+        <div id="CaptionsListDiv" class="flex content-start flex-wrap w-1/3">
+          <!-- <div class="w-1/2 p-2">
+            <button id="CaptionButton[0]" class="text-gray-700 text-center bg-gray-400 p-2 rounded-lg" onclick="click">1asdfasdf</button>
+          </div> -->
+        </div>
+
+        <div class="flex-none w-1/5 my-auto">
+            <button id="StartBtn" class="bg-transparent hover:bg-blue-300 text-blue-700 font-semibold py-2 px-4 border border-blue-500 rounded">
+                Start
+            </button>   
+        </div> 
+
+        <div id="loader" class="loader"></div>
+        <div id="BestMeme">
+          <img id = "winning" src = "" class="flex-none w-2/5 rounded-lg shadow-2xl max-h-1/2"/>
+        </div>
+        <div id="Graph"></div>
 
 
-    </script>
-<center>
-    <h1> HELLO THERE</h1>
-    <img id="myImage" src="resources/gifs/HelloThere.gif" width="480" height="240">
-    <p id="buttons">
-        <button type="button" onclick="response(1)">General Kenobi!</button>
-        <button type="button" onclick="response(0)">Hi</button>
-    </p>
-</center>
-
-</body>
-
-
+      </center>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="js/client.js"></script>
+  </body>
 </html>
