@@ -35,3 +35,7 @@ img {
  :-ms-input-placeholder {  
     text-align: center; 
  }
+
+ #MusicButton:focus {
+    outline:none;
+}
