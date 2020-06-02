@@ -53,7 +53,20 @@ $(function() {
 
     $('#CreateRoomBtn').click(function(){
         socket.emit('newRoom', joinRoom)
-    })
+    });
+
+    $('#MusicButton').click(function(){
+        if ($('#Music')[0].paused) {
+            $('#MusicImage').attr('src','resources/images/icons8-speaker-40.png')  
+            console.log('audio')
+            $('#Music')[0].play()
+        }
+        else {
+            $('#MusicImage').attr('src','resources/images/icons8-no-audio-40.png')
+            console.log('No audio')
+            $('#Music')[0].pause()
+        }
+    });
 
     function joinRoom(roomID) {
         console.log("Joining room with id: " + roomID);
@@ -66,6 +79,7 @@ $(function() {
         $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
         $('#RoomID').text("Room ID: " + roomID)
         $('#RoomID').show()
+        $('#Music')[0].play()
         socket.emit("getUsers")
         
         state = 1

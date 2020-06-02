@@ -354,6 +354,9 @@ app.use('/js', express.static(__dirname + '/js'));
 
 
 app.use('/resources/gifs', express.static(__dirname + '/resources/gifs'));
+app.use('/resources/music', express.static(__dirname + '/resources/music'));
+app.use('/resources/images', express.static(__dirname + '/resources/images'));
+
 
 
 http.listen(port, function(){
