@@ -43,7 +43,7 @@ io.on('connection', function(socket){
 
 function Room(roomID) {
     this.roomID = roomID;
-    this.roundTime = 30;
+    this.roundTime = 60;
     this.countDownTimer = this.roundTime;
     this.messages = 0;
     this.users = {}
