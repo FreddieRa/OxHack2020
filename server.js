@@ -13,17 +13,6 @@ global.document = document;
 
 var $ = jQuery = require('jquery')(window);
 
-var player = require('play-sound')(opts = {})
-
-function playMusic() {
-    player.play('resources/music/bensound-jazzcomedy.mp3', function (err) {
-        if (err) throw err;
-        playMusic()
-        console.log("Audio finished");
-    });
-}
-playMusic()
-
 let imported = document.createElement('script');
 imported.src = "./js/user.js";
 document.head.appendChild(imported);
@@ -365,8 +354,6 @@ app.use('/js', express.static(__dirname + '/js'));
 
 
 app.use('/resources/gifs', express.static(__dirname + '/resources/gifs'));
-app.use('/resources/music', express.static(__dirname + '/resources/music'));
-
 
 
 http.listen(port, function(){
