@@ -31,6 +31,7 @@ $(function() {
     $('#Counter').hide()
     $('#loader').hide()
     $('#RoomID').hide()
+    $('#WinnerName').hide()
 
     $("#SkipBtn").click(function(){ 
         socket.emit('skip', name);
@@ -52,7 +53,20 @@ $(function() {
 
     $('#CreateRoomBtn').click(function(){
         socket.emit('newRoom', joinRoom)
-    })
+    });
+
+    $('#MusicButton').click(function(){
+        if ($('#Music')[0].paused) {
+            $('#MusicImage').attr('src','resources/images/icons8-speaker-40.png')  
+            console.log('audio')
+            $('#Music')[0].play()
+        }
+        else {
+            $('#MusicImage').attr('src','resources/images/icons8-no-audio-40.png')
+            console.log('No audio')
+            $('#Music')[0].pause()
+        }
+    });
 
     function joinRoom(roomID) {
         console.log("Joining room with id: " + roomID);
@@ -65,6 +79,7 @@ $(function() {
         $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
         $('#RoomID').text("Room ID: " + roomID)
         $('#RoomID').show()
+        $('#Music')[0].play()
         socket.emit("getUsers")
         
         state = 1
@@ -141,6 +156,9 @@ $(function() {
                     countDownTimer = data;
                     timerOn = true
                     $('#Counter').text(countDownTimer) 
+                    break;
+                case 'winnerName':
+                    $('#WinnerName').text("Winner: "+data)
                     break;
                 case 'loadStored':
                     $('#gif').attr('src', img.src)      //bug s.t. img.src is not defined
@@ -260,7 +278,7 @@ $(function() {
         console.log(url);
         $("#winning").show()
         $("#winning").attr("src", url)
-        $("#winning").one('load', function(){$("#loader").hide(), $("#BestMeme").show()})
+        $("#winning").one('load', function(){$("#loader").hide(), $("#BestMeme").show(), $('#WinnerName').show()})
     });
 
     s.on('refresh', function(_) {
