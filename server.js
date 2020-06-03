@@ -46,6 +46,7 @@ function Room(roomID) {
     this.roundTime = 60;
     this.countDownTimer = this.roundTime;
     this.messages = 0;
+    this.rounds = 5;
     this.users = {}
 
     this.gotGif = false;
@@ -97,6 +98,10 @@ function Room(roomID) {
 
         socket.on('start', function(_){
             t.state01()
+        });
+
+        socket.on('rounds', function(rounds){
+            t.rounds = rounds
         });
 
         socket.on('reset', function(_){
@@ -177,7 +182,13 @@ function Room(roomID) {
             case 3:
                 this.countDownTimer -= 1
                 if (this.countDownTimer == 0) {
-                    this.state31()
+                    if (this.rounds == 0) {
+                        this.nsp.emit('refresh', null);
+                        // TODO: Insert graceful ending, perhaps asking to play again, or showing all winning memes in collage
+                        delete rooms[this.roomID]
+                    } else {
+                        this.state31()
+                    }
                 }
         }
     }
@@ -190,7 +201,7 @@ function Room(roomID) {
         this.currentMeme = this.nextMeme
         this.nsp.emit('command',{'cmd':'forceLoad', 'data': url}) // Tells client to load and display gif
         this.nsp.emit('command',{'cmd':'startTimer', 'data': this.roundTime})     
-        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv", "UsersListDiv", "RoomID","WinnerName"]})
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtns","CaptionsListDiv", "UsersListDiv", "RoomID","WinnerName"]})
         this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
     
         this.countDownTimer = this.roundTime
@@ -208,7 +219,7 @@ function Room(roomID) {
             this.nsp.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif (with countdown 0)
         }
         this.currentMeme = this.nextMeme
-        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","UsersListDiv","WinnerName"]})
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtns","CaptionsListDiv","UsersListDiv","WinnerName"]})
         this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
         this.nsp.emit('command',{'cmd':'startTimer', 'data':this.roundTime})
     
@@ -223,10 +234,14 @@ function Room(roomID) {
         //      Else: Hide submission box -> Send submissions to user -> Reset counter
         
         let mapped = Object.values(this.users).map(x => [x.username, x.currentCaption])
+        
+        // If no submissions skip round
+        if (mapped.filter(x => x != "").length == 0){this.state11(); return false;}
+
         this.nsp.emit('captions', mapped); // On receiving captions, hide submissions
         // io.emit('command',{'cmd': 'show', 'data': 'CaptionsListDiv'})
         this.nsp.emit('command',{'cmd':'startTimer', 'data': this.roundTime})
-        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","SkipBtn","CaptionsSubmitDiv","UsersListDiv", "BestMeme", "RoomID","WinnerName"]})
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtns","SkipBtn","CaptionsSubmitDiv","UsersListDiv", "BestMeme", "RoomID","WinnerName"]})
         this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","CaptionsListDiv"]})
         this.gotGif = false;
         this.countDownTimer = this.roundTime
@@ -241,10 +256,11 @@ function Room(roomID) {
         // Stop Condition: All users have voted || Countdown == 0
         // After: Send scores to all users -> wait 30 seconds -> change back to waiting for submissions with new gif
         // LOOP END
+
         let u = Object.values(this.users)
     
         
-        this.nsp.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtn","UsersListDiv"]})
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtns","UsersListDiv"]})
         this.nsp.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif in 30 seconds
 
         this.nsp.emit('command',{'cmd':'show', 'data': ["loader"]})
@@ -267,7 +283,9 @@ function Room(roomID) {
         this.nsp.emit('command',{'cmd': 'winnerName', 'data':this.winnerName})
 
         // this.nsp.emit('command',{'cmd':'show','data': ["WinnerName"]})
-        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "gif","SkipBtn","CaptionsSubmitDiv"]})
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtns","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "gif","SkipBtn","CaptionsSubmitDiv"]})
+
+        this.rounds -= 1;
         
         for (let user of Object.values(this.users)) {
             user.currentCaption = ""
@@ -284,7 +302,7 @@ function Room(roomID) {
     
     
     this.state31 = function() {
-        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtn","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "BestMeme","WinnerName"]})
+        this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtns","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "BestMeme","WinnerName"]})
         this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
         this.nsp.emit('command',{'cmd':'startTimer', 'data':this.roundTime})
         this.countDownTimer = this.roundTime
