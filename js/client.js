@@ -9,13 +9,69 @@ $(function () {
     // }
 
     // States
-    // 0: waiting to join room or make new one
-    // 1: waiting to enter name or press start
-    // 2: In game
+    // 0: Waiting to join room or make new one
+    // 1: Waiting to enter name or press start
+    // 2: Submitting caption and or skipping 
+    // 3: Waiting for all users to submit or skip
+    // 4: Voting
+    // 5: Waiting for all users to vote
+    // 6: Displaying winning meme
 
     // Transitions
-    // 0 -> 1: Hide "make room", join the required room
-    // 1 -> 2: Hide ["start", "UsersListDiv"]
+    // 0 -> 1: Hide ["CreateRoomBtn"], join the required room
+    // 1 -> 2: Hide ["StartBtns", "UsersListDiv"] Show ["CaptionsSubmitDiv", "Counter", "SkipBtn"]
+    // 2 -> 2: Show ["CaptionsSubmitDiv","SkipBtn"]
+    // 2 -> 3: Hide ["CaptionsSubmitDiv"]
+    // 3 -> 4: Hide ["SkipBtn"] Show ["CaptionsListDiv"]
+    // 4 -> 5:
+    // 5 -> 6:
+    // 6 -> 0:
+    // 6 -> 2
+
+    function state01(){
+        joinRoom(roomId)
+        hideElements(["CreateRoomBtn"])
+        $('#m').removeClass("border-red-500").addClass("border-blue-500")
+        $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
+        $('#RoomID').show()
+        $('#Music')[0].play()
+    }
+    function state12(){
+        hideElements(["StartBtns","UsersListDiv"])
+        showElements(["CaptionsSubmitDiv", "Counter", "SkipBtn"])
+    }
+    function state22(){
+        
+    }
+    function state23(){
+        
+    }
+    function state34(){
+        
+    }
+    function state45(){
+        
+    }
+    function state56(){
+        
+    }
+    function state60(){
+        
+    }
+    function state62(){
+        
+    }
+    function hideElements(data){
+        for (let element of data) {
+            $('#' + element).hide()
+        }
+    }
+    function showElements(data){
+        for (let element of data) {
+            $('#' + element).show()
+        }
+    }
+
 
     state = 0;
     name = "";
@@ -178,15 +234,11 @@ $(function () {
         });
 
         s.on('hide', function (data) {
-            for (let element of data) {
-                $('#' + element).hide()
-            }
+            hideElements(data)
         });
 
         s.on('show', function (data) {
-            for (let element of data) {
-                $('#' + element).show()
-            }
+            showElements(data)
         });
 
         s.on('user', function (data) {
