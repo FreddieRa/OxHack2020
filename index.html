@@ -11,6 +11,7 @@
     <center>
       <div class="flex flex-col mx-auto w-8 items-center justify-center rounded my-4 py-4">
         <h1 id="Counter" class="text-blue-500 text-4xl">60</h1>
+        <h1 id="WinnerName" class="text-blue-500 text-4xl"></h1>
       </div>
         <div class="flex-col w-full py-8 align-center">
           <div class="flex-none w-2/5"></div>
@@ -57,10 +58,13 @@
           </div> -->
         </div>
 
-        <div class="flex-none w-1/5 my-auto">
+        <div id="StartBtns" class="flex-row w-1/5 my-auto">
             <button id="StartBtn" class="bg-transparent hover:bg-blue-300 text-blue-700 font-semibold py-2 px-4 border border-blue-500 rounded">
                 Start
-            </button>   
+            </button>  
+            <button id="RoundsBtn" class="bg-transparent hover:bg-blue-300 text-blue-700 font-semibold py-2 px-4 border border-blue-500 rounded">
+                Rounds: 5
+            </button>    
         </div> 
 
         <div id="loader" class="loader"></div>
@@ -68,11 +72,23 @@
           <img id = "winning" src = "" class="flex-none w-2/5 rounded-lg shadow-2xl max-h-1/2"/>
         </div>
         <div id="Graph"></div>
-
-
+        <div class="absolute outline-none top-0 right-0 pr-8 pt-8" >      
+            <button id="MusicButton" class="outline-none"><img id="MusicImage" src="resources/images/icons8-speaker-40.png"></button> 
+        </div>
+        <div class="absolute bottom-0 right-0">
+          <p style="color:rgb(163, 163, 163);">
+            <a target="_blank" href="https://icons8.com/icons/set/speaker">Speaker icon</a>icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+            <a target="_blank" href="https://icons8.com/icons/set/no-audio">No Audio icon</a>icon by <a target="_blank" href="https://icons8.com">Icons8</a> 
+            <a target="_blank" href="https://www.bensound.com">BenSound.com</a>
+          </p>
+       </div>
       </center>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script type="text/javascript" src="js/client.js"></script>
+    <audio loop id="Music">
+      <source src="resources/music/bensound-jazzcomedy.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+    </audio>
   </body>
 </html>
