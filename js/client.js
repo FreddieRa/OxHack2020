@@ -87,7 +87,9 @@ $(function () {
         $('#RoomID').text("Room ID: " + roomID)
         $('#RoomID').show()
         $('#Music')[0].play()
-        socket.emit("getUsers")
+        socket.emit("getUsers", function(answer) {
+            displayUserList(answer)
+        });
 
         state = 1
     }
@@ -117,7 +119,9 @@ $(function () {
                 $('#CaptionsSubmitDiv').hide()
                 $('#StartBtns').show()
                 name = $('#m').val()
-                socket.emit('user', name); //Sending a message to server
+                socket.emit('user', name, function(users){
+                    displayUserList(users)
+                }); //Sending a message to server
                 $('#m').attr("placeholder", "")
                 $('#SubmitBtn').html("Submit")
                 state = 2;
@@ -186,24 +190,7 @@ $(function () {
         });
 
         s.on('user', function (data) {
-            $('#UsersListDiv').empty()
-            console.log("Incoming user")
-            let divClass = "w-1/2 p-2"
-            let h2Class = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg"
-            for (let name of data) {
-                console.log("Recieving " + name + " from server");
-
-                let div = document.createElement("div");
-                div.className = divClass
-
-                let h2 = document.createElement("h2");
-                h2.className = h2Class
-                h2.innerHTML = name
-
-                div.appendChild(h2);
-                $('#UsersListDiv').append(div);
-            }
-            $('#UsersListDiv').show();
+            displayUserList(data)
         });
 
         s.on('captions', function (captions) {
@@ -298,6 +285,26 @@ $(function () {
 
 });
 
+function displayUserList(data) {
+    $('#UsersListDiv').empty()
+    console.log("Incoming user")
+    let divClass = "w-1/2 p-2"
+    let h2Class = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg"
+    for (let name of data) {
+        console.log("Recieving " + name + " from server");
+
+        let div = document.createElement("div");
+        div.className = divClass
+
+        let h2 = document.createElement("h2");
+        h2.className = h2Class
+        h2.innerHTML = name
+
+        div.appendChild(h2);
+        $('#UsersListDiv').append(div);
+    }
+    $('#UsersListDiv').show();
+}
 
 function update() {
     if (timerOn) {

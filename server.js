@@ -80,20 +80,20 @@ function Room(roomID) {
             }
         });
 
-        socket.on('user', function (name) {
+        socket.on('user', function (name, callback) {
             //Send error back for duplicate names
             console.log(t.users)
             if (name in t.users == false && t.state == 0) {
                 t.users[name] = new User(name)
-                t.nsp.emit('user', Object.keys(t.users))
+                callback(Object.keys(t.users))
                 console.log("Sending " + name + " to clients");
                 console.log("Num current useres " + Object.keys(t.users).length);
             }
         });
 
-        socket.on('getUsers', function () {
+        socket.on('getUsers', function (callback) {
             //Send error back for duplicate names
-            t.nsp.emit('user', Object.keys(t.users))
+            callback(Object.keys(t.users))
         });
 
         socket.on('start', function (_) {
@@ -104,21 +104,21 @@ function Room(roomID) {
             t.rounds = rounds
         });
 
-        socket.on('reset', function (_) {
-            t.state = 0
-            t.messages = 0;
-            t.users = {}
+        // socket.on('reset', function (_) {
+        //     t.state = 0
+        //     t.messages = 0;
+        //     t.users = {}
 
-            t.gotGif = false;
-            t.usersSubmitted = 0;
-            t.usersVoted = 0;
-            t.skippedVotes = 0;
+        //     t.gotGif = false;
+        //     t.usersSubmitted = 0;
+        //     t.usersVoted = 0;
+        //     t.skippedVotes = 0;
 
-            t.currentMeme = "";
-            t.nextMeme = "";
-            t.maxVotes = -1;
-            t.nsp.emit('refresh', null)
-        });
+        //     t.currentMeme = "";
+        //     t.nextMeme = "";
+        //     t.maxVotes = -1;
+        //     t.nsp.emit('refresh', null) //bad emit
+        // });
 
         socket.on('skip', function (name) {
             if (name in t.users && t.state == 1) {
