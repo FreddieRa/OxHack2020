@@ -59,7 +59,20 @@ function Room(roomID) {
     this.maxVotes = -1;
     this.winningSubmission = "";
     this.winnerName = "";
-    this.state = 0
+    this.state = 0;
+
+    this.getAllMemes = function() {
+        let url = "https://api.imgflip.com/get_memes"
+        let string = $.ajax({ 
+            url: url, 
+            async: false
+         }).responseText;
+        let json = JSON.parse(string);
+        return json.data.memes
+    }
+
+    this.memes = this.getAllMemes();
+
 
     this.nsp = io.of('/' + this.roomID);
 
@@ -163,8 +176,8 @@ function Room(roomID) {
 
             case 1:
                 if (this.gotGif == false) {
-                    let url = this.getMeme()
-                    this.nsp.emit('preload', url) // Tells client to preload gif
+                    this.getMeme('preload')
+                    // This is now done in getMeme()
                     this.gotGif = true
                 }
 
@@ -195,15 +208,12 @@ function Room(roomID) {
 
     this.state01 = function () {
         // Hide start from all users -> fetch gif -> show countdown -> show gif
-        // io.emit('command', {'cmd':'hide','data': 'start'});
-
-        let url = this.getMeme()
+        // io.emit('command', {'cmd':'hide','data': 'start'});    
+        this.getMeme('forceLoad')
         this.currentMeme = this.nextMeme
-        this.nsp.emit('forceLoad', url) // Tells client to load and display gif
-        this.nsp.emit('startTimer', this.roundTime)
-        this.nsp.emit('hide', ["StartBtns", "CaptionsListDiv", "UsersListDiv", "RoomID", "WinnerName"])
-        this.nsp.emit('show', ["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
-
+        this.nsp.emit('startTimer', this.roundTime)     
+        this.nsp.emit('hide', ["StartBtns","CaptionsListDiv", "UsersListDiv", "RoomID","WinnerName"])
+        this.nsp.emit('show', ["gif","Counter","SkipBtn","CaptionsSubmitDiv"])
         this.countDownTimer = this.roundTime
 
         this.state = 1
@@ -213,8 +223,10 @@ function Room(roomID) {
         // counting down, registering skip votes, accepting submissions
         //      If skipped: Show new gif -> Back to waiting for all users
         if (this.gotGif == false) {
-            let url = this.getMeme()
-            this.nsp.emit('forceLoad', url) // Tells client to load and display gif
+            // let url = this.getMeme()
+            // this.nsp.emit('command',{'cmd': 'forceLoad', 'data': url}) // Tells client to load and display gif
+            this.getMeme('forceLoad')
+
         } else {
             this.nsp.emit('loadStored', null) // Tells client to display loaded gif (with countdown 0)
         }
@@ -258,17 +270,24 @@ function Room(roomID) {
         // LOOP END
 
         let u = Object.values(this.users)
-
-
-        this.nsp.emit('hide', ["Counter", "SkipBtn", "CaptionsSubmitDiv", "gif", "StartBtns", "UsersListDiv"])
+    
+        
+        this.nsp.emit('hide', ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtns","UsersListDiv"])
         this.nsp.emit('loadStored', null) // Tells client to display loaded gif in 30 seconds
 
         this.nsp.emit('show', ["loader"])
+    
+        
+        let text = this.winningSubmission.split(',')
+        let boxes = []
 
+        for (let box of text) { 
+            boxes.push({"text": box})
+        }
+    
+        //let data = {"template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": text[0], "text1": text[1]}
+        let data = {"template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes}
 
-        let text = this.winningSubmission.split('\\')
-
-        let data = { "template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": text[0], "text1": text[1] }
         console.log(JSON.stringify(data))
 
         let n = this.nsp
@@ -307,24 +326,30 @@ function Room(roomID) {
         this.nsp.emit('startTimer', this.roundTime)
         this.countDownTimer = this.roundTime
         this.state = 1
-    }
+    }    
+    this.getMeme = function(command) {
+        let keys = Object.keys(this.memes)
 
-    this.getMeme = function (tag = "") {
-        //let g = new Giph(tag);
-        //return g.newGif()
-        let url = "https://api.imgflip.com/get_memes"
-        let string = $.ajax({
-            url: url,
-            async: false
-        }).responseText;
-        let json = JSON.parse(string);
-        let memes = json.data.memes
-        let keys = Object.keys(memes)
         let key = Math.floor(Math.random() * keys.length)
-        let memeurl = memes[keys[key]].url
+        let memeurl = this.memes[keys[key]].url
+        let memeid = this.memes[keys[key]].id
+        let boxCount = this.memes[keys[key]].box_count
+        let boxes = []
+
+        // Get number for each position
+        for(let i = 1; i < boxCount + 1; i++) {boxes.push({"text": i})}
+
+        let data = {"template_id": memeid, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes}
+        
+        let n = this.nsp
+        $.post("https://api.imgflip.com/caption_image", data, function(result) {
+            console.log(result)
+            let url = JSON.parse(result).data.url
+            n.emit('command',{'cmd': command, 'data': url})
+        }, "html")
 
         // This is a terrible side effect and should be removed.......but it works for now
-        this.nextMeme = memes[keys[key]].id
+        this.nextMeme = memeid
         return memeurl
     }
 
