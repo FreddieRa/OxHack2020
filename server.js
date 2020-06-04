@@ -163,8 +163,9 @@ function Room(roomID) {
     
             case 1:
                 if (this.gotGif == false) {
-                    let url = this.getMeme()
-                    this.nsp.emit('command',{'cmd':'preload', 'data':url}) // Tells client to preload gif
+                    this.getMeme('preload')
+                    // This is now done in getMeme()
+                    // this.nsp.emit('command',{'cmd':'preload', 'data':url}) // Tells client to preload gif
                     this.gotGif = true
                 }
     
@@ -197,9 +198,10 @@ function Room(roomID) {
         // Hide start from all users -> fetch gif -> show countdown -> show gif
         // io.emit('command', {'cmd':'hide','data': 'start'});
     
-        let url = this.getMeme()
+        // let url = this.getMeme()
+        this.getMeme('forceLoad')
         this.currentMeme = this.nextMeme
-        this.nsp.emit('command',{'cmd':'forceLoad', 'data': url}) // Tells client to load and display gif
+        //this.nsp.emit('command',{'cmd':'forceLoad', 'data': url}) // Tells client to load and display gif
         this.nsp.emit('command',{'cmd':'startTimer', 'data': this.roundTime})     
         this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtns","CaptionsListDiv", "UsersListDiv", "RoomID","WinnerName"]})
         this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
@@ -213,8 +215,9 @@ function Room(roomID) {
         // counting down, registering skip votes, accepting submissions
             //      If skipped: Show new gif -> Back to waiting for all users
         if (this.gotGif == false) {
-            let url = this.getMeme()
-            this.nsp.emit('command',{'cmd': 'forceLoad', 'data': url}) // Tells client to load and display gif
+            // let url = this.getMeme()
+            // this.nsp.emit('command',{'cmd': 'forceLoad', 'data': url}) // Tells client to load and display gif
+            this.getMeme('forceLoad')
         } else {
             this.nsp.emit('command',{'cmd': 'loadStored', 'data': null}) // Tells client to display loaded gif (with countdown 0)
         }
@@ -266,9 +269,15 @@ function Room(roomID) {
         this.nsp.emit('command',{'cmd':'show', 'data': ["loader"]})
     
         
-        let text = this.winningSubmission.split('\\')
+        let text = this.winningSubmission.split(',')
+        let boxes = []
+
+        for (let box of text) { 
+            boxes.push({"text": box})
+        }
     
-        let data = {"template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": text[0], "text1": text[1]}
+        //let data = {"template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": text[0], "text1": text[1]}
+        let data = {"template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes}
         console.log(JSON.stringify(data))
     
         let n = this.nsp
@@ -309,7 +318,7 @@ function Room(roomID) {
         this.state = 1
     }
     
-    this.getMeme = function(tag = "") {
+    this.getMeme = function(command) {
         //let g = new Giph(tag);
         //return g.newGif()
         let url = "https://api.imgflip.com/get_memes"
@@ -322,6 +331,20 @@ function Room(roomID) {
         let keys = Object.keys(memes)
         let key = Math.floor(Math.random() * keys.length)
         let memeurl = memes[keys[key]].url
+        let boxes = []
+
+        for(let i = 1; i < memes[keys[key]].box_count; i++) {boxes.push({"text": i})}
+        let data = {"template_id": memes[keys[key]].id, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes}
+        // console.log(JSON.stringify(data))
+        
+        let n = this.nsp
+        $.post("https://api.imgflip.com/caption_image", data, function(result) {
+            console.log(result)
+            let url = JSON.parse(result).data.url
+            n.emit('command',{'cmd': command, 'data': url})
+        }, "html")
+
+
 
         // This is a terrible side effect and should be removed.......but it works for now
         this.nextMeme = memes[keys[key]].id
