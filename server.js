@@ -340,7 +340,7 @@ function Room(roomID) {
         let boxes = []
 
         // Get number for each position
-        for(let i = 1; i < boxCount; i++) {boxes.push({"text": i})}
+        for(let i = 1; i < boxCount + 1; i++) {boxes.push({"text": i})}
 
         let data = {"template_id": memeid, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes}
         
