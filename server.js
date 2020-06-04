@@ -345,7 +345,7 @@ function Room(roomID) {
         $.post("https://api.imgflip.com/caption_image", data, function(result) {
             console.log(result)
             let url = JSON.parse(result).data.url
-            n.emit('command',{'cmd': command, 'data': url})
+            n.emit(command, url)
         }, "html")
 
         // This is a terrible side effect and should be removed.......but it works for now
