@@ -59,7 +59,20 @@ function Room(roomID) {
     this.maxVotes = -1;
     this.winningSubmission = "";
     this.winnerName = "";
-    this.state = 0
+    this.state = 0;
+
+    this.getAllMemes = function() {
+        let url = "https://api.imgflip.com/get_memes"
+        let string = $.ajax({ 
+            url: url, 
+            async: false
+         }).responseText;
+        let json = JSON.parse(string);
+        return json.data.memes
+    }
+
+    this.memes = this.getAllMemes();
+
 
     this.nsp = io.of('/'+this.roomID);
 
@@ -319,23 +332,17 @@ function Room(roomID) {
     }
     
     this.getMeme = function(command) {
-        //let g = new Giph(tag);
-        //return g.newGif()
-        let url = "https://api.imgflip.com/get_memes"
-        let string = $.ajax({ 
-            url: url, 
-            async: false
-         }).responseText;
-        let json = JSON.parse(string);
-        let memes = json.data.memes
-        let keys = Object.keys(memes)
+        let keys = Object.keys(this.memes)
         let key = Math.floor(Math.random() * keys.length)
-        let memeurl = memes[keys[key]].url
+        let memeurl = this.memes[keys[key]].url
+        let memeid = this.memes[keys[key]].id
+        let boxCount = this.memes[keys[key]].box_count
         let boxes = []
 
-        for(let i = 1; i < memes[keys[key]].box_count; i++) {boxes.push({"text": i})}
-        let data = {"template_id": memes[keys[key]].id, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes}
-        // console.log(JSON.stringify(data))
+        // Get number for each position
+        for(let i = 1; i < boxCount; i++) {boxes.push({"text": i})}
+
+        let data = {"template_id": memeid, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes}
         
         let n = this.nsp
         $.post("https://api.imgflip.com/caption_image", data, function(result) {
@@ -344,13 +351,11 @@ function Room(roomID) {
             n.emit('command',{'cmd': command, 'data': url})
         }, "html")
 
-
-
         // This is a terrible side effect and should be removed.......but it works for now
-        this.nextMeme = memes[keys[key]].id
+        this.nextMeme = memeid
         return memeurl
     }
-    
+
 }
 
 
