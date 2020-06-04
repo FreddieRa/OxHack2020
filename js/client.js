@@ -11,64 +11,63 @@ $(function () {
     // States
     // 0: Waiting to join room or make new one
     // 1: Waiting to enter name or press start
-    // 2: Submitting caption and or skipping 
-    // 3: Waiting for all users to submit or skip
-    // 4: Voting
-    // 5: Waiting for all users to vote
-    // 6: Displaying winning meme
+    // 2: Submitting caption and or skipping then waiting to recieve transition command
+    // 3: Voting then waiting to recieve transition command
+    // 4: Displaying winning meme
 
     // Transitions
     // 0 -> 1: Hide ["CreateRoomBtn"], join the required room
     // 1 -> 2: Hide ["StartBtns", "UsersListDiv"] Show ["CaptionsSubmitDiv", "Counter", "SkipBtn"]
     // 2 -> 2: Show ["CaptionsSubmitDiv","SkipBtn"]
-    // 2 -> 3: Hide ["CaptionsSubmitDiv"]
-    // 3 -> 4: Hide ["SkipBtn"] Show ["CaptionsListDiv"]
-    // 4 -> 5:
-    // 5 -> 6:
-    // 6 -> 0:
-    // 6 -> 2
+    // 2 -> 3: Hide ["SkipBtn", "CaptionsSubmitDiv"] Show ["CaptionsListDiv"]
+    // 3 -> 4: Hide ["gif","CaptionsListDiv","Counter"] Show ["loader"]
+    // 4 -> 0: 
+    // 4 -> 2:
+ 
 
     let state01Message = 01;
     let state12Message = 12;
     let state22Message = 22;
     let state23Message = 23;
     let state34Message = 34;
-    let state45Message = 45;
-    let state56Message = 56;
-    let state60Message = 60;
-    let state62Message = 62;
+    let state40Message = 40;
+    let state42Message = 42;
 
     function state01(){
-        joinRoom(roomId)
-        hideElements(["CreateRoomBtn"])
+        state = 1
+        hideElements(["CreateRoomBtn","CaptionsSubmitDiv"])
+        showElements(["StartBtns","UsersListDiv"])
         $('#m').removeClass("border-red-500").addClass("border-blue-500")
         $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
-        $('#RoomID').show()
         $('#Music')[0].play()
+        $('#m').attr("placeholder", "")
+        $('#SubmitBtn').html("Submit")
     }
     function state12(){
+        state = 2
+        $("#m").val("")
         hideElements(["StartBtns","UsersListDiv"])
         showElements(["CaptionsSubmitDiv", "Counter", "SkipBtn"])
     }
     function state22(){
-        
+        showElements(["CaptionsSubmitDiv","SkipBtn"])
     }
     function state23(){
-        
+        state = 3
+        hideElements(["SkipBtn", "CaptionsSubmitDiv"])
+        showElements(["CaptionsListDiv"])
     }
     function state34(){
+        state = 4
+        hideElements(["gif","CaptionsListDiv","Counter"])
+        showElements(["loader"])
+    }
+    function state42(){
+        state = 2
         
     }
-    function state45(){
-        
-    }
-    function state56(){
-        
-    }
-    function state60(){
-        
-    }
-    function state62(){
+    function state40(){
+        state = 0
         
     }
     function hideElements(data){
@@ -97,7 +96,6 @@ $(function () {
     $('#SkipBtn').hide()
     $('#Counter').hide()
     $('#loader').hide()
-    $('#RoomID').hide()
     $('#WinnerName').hide()
 
     $("#SkipBtn").click(function () {
@@ -125,6 +123,8 @@ $(function () {
 
 
     $('#CreateRoomBtn').click(function () {
+        $("#CreateRoomBtn").hide()
+        state01()
         socket.emit('newRoom', joinRoom)
     });
 
@@ -142,22 +142,17 @@ $(function () {
     });
 
     function joinRoom(roomID) {
+        $('#RoomID').text("Room ID: " + roomID)
         console.log("Joining room with id: " + roomID);
         socket = io('/' + roomID);
         setSocket(socket)
         console.log(socket)
+        name = $('#m').val()
+        socket.emit('user', name)
         roomID = roomID;
-        $('#CreateRoomBtn').hide()
-        $('#m').removeClass("border-red-500").addClass("border-blue-500")
-        $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
-        $('#RoomID').text("Room ID: " + roomID)
-        $('#RoomID').show()
-        $('#Music')[0].play()
         socket.emit("getUsers", function(answer) {
             displayUserList(answer)
         });
-
-        state = 1
     }
 
     function submit() {
@@ -171,6 +166,7 @@ $(function () {
                 socket.emit("joinRoom", val, function (answer) {
                     if (state == 0) {
                         if (answer) {
+                            state01()
                             joinRoom(val)
                         } else {
                             $('#m').attr('placeholder', "Room ID " + val + " does not exist, please try again")
@@ -180,19 +176,6 @@ $(function () {
                     }
                 })
                 break;
-
-            case 1:
-                $('#CaptionsSubmitDiv').hide()
-                $('#StartBtns').show()
-                name = $('#m').val()
-                socket.emit('user', name, function(users){
-                    displayUserList(users)
-                }); //Sending a message to server
-                $('#m').attr("placeholder", "")
-                $('#SubmitBtn').html("Submit")
-                state = 2;
-                break;
-
             case 2:
                 let data = $('#m').val()
                 console.log(data)
@@ -397,7 +380,6 @@ function displayUserList(data) {
         div.appendChild(h2);
         $('#UsersListDiv').append(div);
     }
-    $('#UsersListDiv').show();
 }
 
 function update() {

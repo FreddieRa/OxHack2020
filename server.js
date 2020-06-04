@@ -60,14 +60,18 @@ function Room(roomID) {
     this.winningSubmission = "";
     this.winnerName = "";
     this.state = 0;
-
-    //Managing transitions (hide and show initially, but hopefully something that can be extended later)
-    //This must match in client.js
+    
+    //Must match that in client.js
+    //Are the codes for the transition
     let state01Message = 01;
     let state11Message = 11;
     let state12Message = 12;
+    let state22Message = 22;
     let state23Message = 23;
     let state31Message = 31;
+    let state34Message = 34;
+    let state40Message = 40;
+    let state42Message = 42;
 
     this.getAllMemes = function() {
         let url = "https://api.imgflip.com/get_memes"
@@ -101,12 +105,12 @@ function Room(roomID) {
             }
         });
 
-        socket.on('user', function (name, callback) {
+        socket.on('user', function (name) {
             //Send error back for duplicate names
             console.log(t.users)
             if (name in t.users == false && t.state == 0) {
                 t.users[name] = new User(name)
-                callback(Object.keys(t.users))
+                this.nsp.emit('user', Object.keys(t.users))
                 console.log("Sending " + name + " to clients");
                 console.log("Num current useres " + Object.keys(t.users).length);
             }
@@ -214,17 +218,7 @@ function Room(roomID) {
         }
     }
 
-    //Must match that in client.js
-    //Are the codes for the transition
-    let state01Message = 01;
-    let state12Message = 12;
-    let state22Message = 22;
-    let state23Message = 23;
-    let state34Message = 34;
-    let state45Message = 45;
-    let state56Message = 56;
-    let state60Message = 60;
-    let state62Message = 62;
+
 
 
     this.state01 = function () {
@@ -233,9 +227,7 @@ function Room(roomID) {
         this.getMeme('forceLoad')
         this.currentMeme = this.nextMeme
         this.nsp.emit('startTimer', this.roundTime)     
-        this.nsp.emit('hide', ["StartBtns","CaptionsListDiv", "UsersListDiv", "RoomID","WinnerName"])
-        this.nsp.emit('show', ["gif","Counter","SkipBtn","CaptionsSubmitDiv"])
-        //this.nsp.emit('transition', state01Message);
+        this.nsp.emit('transition', state12Message);
         this.countDownTimer = this.roundTime
 
         this.state = 1
@@ -253,9 +245,8 @@ function Room(roomID) {
             this.nsp.emit('loadStored', null) // Tells client to display loaded gif (with countdown 0)
         }
         this.currentMeme = this.nextMeme
-        this.nsp.emit('hide', ["StartBtns", "CaptionsListDiv", "UsersListDiv", "WinnerName"])
-        this.nsp.emit('show', ["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
-        //this.nsp.emit('transition', state11Message);
+
+        this.nsp.emit('transition', state22Message);
         this.nsp.emit('startTimer', this.roundTime)
 
         this.gotGif = false;
@@ -276,9 +267,8 @@ function Room(roomID) {
         this.nsp.emit('captions', mapped); // On receiving captions, hide submissions
         // io.emit('command',{'cmd': 'show', 'data': 'CaptionsListDiv'})
         this.nsp.emit('startTimer', this.roundTime )
-        this.nsp.emit('hide', ["StartBtns", "SkipBtn", "CaptionsSubmitDiv", "UsersListDiv", "BestMeme", "RoomID", "WinnerName"])
-        this.nsp.emit('show', ["gif", "Counter", "CaptionsListDiv"])
-        //this.nsp.emit('transition', state12Message);
+
+        this.nsp.emit('transition', state23Message);
         this.gotGif = false;
         this.countDownTimer = this.roundTime
         this.skippedVotes = 0
@@ -326,7 +316,7 @@ function Room(roomID) {
 
         // this.nsp.emit('command',{'cmd':'show','data': ["WinnerName"]})
         this.nsp.emit('hide', ["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "gif", "SkipBtn", "CaptionsSubmitDiv"])
-        //this.nsp.emit('transition', state23Message);
+        //this.nsp.emit('transition', state34Message);
 
         this.rounds -= 1;
 
@@ -346,7 +336,7 @@ function Room(roomID) {
     this.state31 = function () {
         this.nsp.emit('hide', ["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
         this.nsp.emit('show', ["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
-        //this.nsp.emit('transition', state31Message);
+        //this.nsp.emit('transition', state42Message);
         this.nsp.emit('startTimer', this.roundTime)
         this.countDownTimer = this.roundTime
         this.state = 1
