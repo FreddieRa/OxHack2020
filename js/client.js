@@ -28,6 +28,16 @@ $(function () {
     // 6 -> 0:
     // 6 -> 2
 
+    let state01Message = 01;
+    let state12Message = 12;
+    let state22Message = 22;
+    let state23Message = 23;
+    let state34Message = 34;
+    let state45Message = 45;
+    let state56Message = 56;
+    let state60Message = 60;
+    let state62Message = 62;
+
     function state01(){
         joinRoom(roomId)
         hideElements(["CreateRoomBtn"])
@@ -332,6 +342,38 @@ $(function () {
 
         s.on('refresh', function (_) {
             window.location.reload(false);
+        });
+
+        s.on('transition', function(tranMessage){
+            switch(tranMessage){
+                case state01Message:
+                    state01();
+                    break;
+                case state12Message:
+                    state12();
+                    break;
+                case state22Message:
+                    state22();
+                    break;
+                case state23Message:
+                    state23();
+                    break;
+                case state34Message:
+                    state34();
+                    break;
+                case state45Message:
+                    state45();
+                    break;
+                case state56Message:
+                    state56();
+                    break;
+                case state60Message:
+                    state60();
+                    break;
+                case state62Message:
+                    state62();
+                    break;
+            } 
         });
     }
 

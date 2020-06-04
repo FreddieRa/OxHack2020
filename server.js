@@ -61,6 +61,14 @@ function Room(roomID) {
     this.winnerName = "";
     this.state = 0;
 
+    //Managing transitions (hide and show initially, but hopefully something that can be extended later)
+    //This must match in client.js
+    let state01Message = 01;
+    let state11Message = 11;
+    let state12Message = 12;
+    let state23Message = 23;
+    let state31Message = 31;
+
     this.getAllMemes = function() {
         let url = "https://api.imgflip.com/get_memes"
         let string = $.ajax({ 
@@ -206,6 +214,19 @@ function Room(roomID) {
         }
     }
 
+    //Must match that in client.js
+    //Are the codes for the transition
+    let state01Message = 01;
+    let state12Message = 12;
+    let state22Message = 22;
+    let state23Message = 23;
+    let state34Message = 34;
+    let state45Message = 45;
+    let state56Message = 56;
+    let state60Message = 60;
+    let state62Message = 62;
+
+
     this.state01 = function () {
         // Hide start from all users -> fetch gif -> show countdown -> show gif
         // io.emit('command', {'cmd':'hide','data': 'start'});    
@@ -214,6 +235,7 @@ function Room(roomID) {
         this.nsp.emit('startTimer', this.roundTime)     
         this.nsp.emit('hide', ["StartBtns","CaptionsListDiv", "UsersListDiv", "RoomID","WinnerName"])
         this.nsp.emit('show', ["gif","Counter","SkipBtn","CaptionsSubmitDiv"])
+        //this.nsp.emit('transition', state01Message);
         this.countDownTimer = this.roundTime
 
         this.state = 1
@@ -233,6 +255,7 @@ function Room(roomID) {
         this.currentMeme = this.nextMeme
         this.nsp.emit('hide', ["StartBtns", "CaptionsListDiv", "UsersListDiv", "WinnerName"])
         this.nsp.emit('show', ["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
+        //this.nsp.emit('transition', state11Message);
         this.nsp.emit('startTimer', this.roundTime)
 
         this.gotGif = false;
@@ -255,13 +278,13 @@ function Room(roomID) {
         this.nsp.emit('startTimer', this.roundTime )
         this.nsp.emit('hide', ["StartBtns", "SkipBtn", "CaptionsSubmitDiv", "UsersListDiv", "BestMeme", "RoomID", "WinnerName"])
         this.nsp.emit('show', ["gif", "Counter", "CaptionsListDiv"])
+        //this.nsp.emit('transition', state12Message);
         this.gotGif = false;
         this.countDownTimer = this.roundTime
         this.skippedVotes = 0
         this.usersSubmitted = 0
         this.state = 2
     }
-
 
     this.state23 = function () {
         // During: Recieving votes, Counting Down
@@ -303,6 +326,7 @@ function Room(roomID) {
 
         // this.nsp.emit('command',{'cmd':'show','data': ["WinnerName"]})
         this.nsp.emit('hide', ["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "gif", "SkipBtn", "CaptionsSubmitDiv"])
+        //this.nsp.emit('transition', state23Message);
 
         this.rounds -= 1;
 
@@ -319,14 +343,16 @@ function Room(roomID) {
         this.currentMeme = this.nextMeme
     }
 
-
     this.state31 = function () {
         this.nsp.emit('hide', ["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
         this.nsp.emit('show', ["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
+        //this.nsp.emit('transition', state31Message);
         this.nsp.emit('startTimer', this.roundTime)
         this.countDownTimer = this.roundTime
         this.state = 1
     }    
+
+
     this.getMeme = function(command) {
         let keys = Object.keys(this.memes)
 
