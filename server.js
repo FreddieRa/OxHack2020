@@ -68,6 +68,7 @@ function Room(roomID) {
     this.nsp = io.of('/'+this.roomID);
 
     let t = this
+    //Uppon an incoming message
     this.nsp.on('connection', function(socket){
         socket.on('chat message', function(msg){
             let user = msg.user
@@ -197,6 +198,7 @@ function Room(roomID) {
         }
     }
 
+    //Transition from start screen to voting
     this.state01 = function() {
         // Hide start from all users -> fetch gif -> show countdown -> show gif
         // io.emit('command', {'cmd':'hide','data': 'start'});
@@ -213,6 +215,7 @@ function Room(roomID) {
         this.state = 1
     }
     
+    //Upon skip button pressed (Currently ~ Ln 133)
     this.state11 = function() {
         // counting down, registering skip votes, accepting submissions
             //      If skipped: Show new gif -> Back to waiting for all users
@@ -233,6 +236,7 @@ function Room(roomID) {
         this.usersSubmitted = 0
     }
     
+    //Transition from captioning to voting
     this.state12 = function() {
         // After: 
         //      Else: Hide submission box -> Send submissions to user -> Reset counter
@@ -254,7 +258,7 @@ function Room(roomID) {
         this.state = 2
     }
     
-    
+    //Transition from voting to leaderboard
     this.state23 = function() {
         // During: Recieving votes, Counting Down
         // Stop Condition: All users have voted || Countdown == 0
@@ -304,7 +308,7 @@ function Room(roomID) {
         this.currentMeme = this.nextMeme
     }
     
-    
+    //Transition from scoreboard to captioning
     this.state31 = function() {
         this.nsp.emit('command',{'cmd':'hide', 'data': ["StartBtns","CaptionsListDiv","LeaderBoardDiv","UsersListDiv", "BestMeme","WinnerName"]})
         this.nsp.emit('command',{'cmd':'show', 'data': ["gif","Counter","SkipBtn","CaptionsSubmitDiv"]})
@@ -355,6 +359,9 @@ let states = {
     // Stop Condition: All users have voted || Countdown == 0
     // After: Send scores to all users -> wait 30 seconds -> change back to waiting for submissions with new gif
     // LOOP END
+
+    3: "Showing score board",
+    //Shows the score board (points per user)
 }
 
 
