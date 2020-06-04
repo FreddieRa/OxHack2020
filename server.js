@@ -17,6 +17,8 @@ let imported = document.createElement('script');
 imported.src = "./js/user.js";
 document.head.appendChild(imported);
 
+//Setup Starts
+
 // Dictionary containing rooms referenced by id
 let rooms = {}
 
@@ -40,6 +42,8 @@ io.on('connection', function(socket){
         }
     })
 });
+
+//File stops here (?)
 
 function Room(roomID) {
     this.roomID = roomID;
