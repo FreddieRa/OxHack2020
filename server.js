@@ -315,8 +315,8 @@ function Room(roomID) {
         this.nsp.emit('winnerName', this.winnerName)
 
         // this.nsp.emit('command',{'cmd':'show','data': ["WinnerName"]})
-        this.nsp.emit('hide', ["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "gif", "SkipBtn", "CaptionsSubmitDiv"])
-        //this.nsp.emit('transition', state34Message);
+        
+        this.nsp.emit('transition', state34Message);
 
         this.rounds -= 1;
 
@@ -334,9 +334,7 @@ function Room(roomID) {
     }
 
     this.state31 = function () {
-        this.nsp.emit('hide', ["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
-        this.nsp.emit('show', ["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
-        //this.nsp.emit('transition', state42Message);
+        this.nsp.emit('transition', state42Message);
         this.nsp.emit('startTimer', this.roundTime)
         this.countDownTimer = this.roundTime
         this.state = 1

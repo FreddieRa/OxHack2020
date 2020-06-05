@@ -23,7 +23,7 @@ $(function () {
     // 3 -> 4: Hide ["gif","CaptionsListDiv","Counter"] Show ["loader"]
     // 4 -> 0: 
     // 4 -> 2:
- 
+
 
     let state01Message = 01;
     let state12Message = 12;
@@ -33,49 +33,62 @@ $(function () {
     let state40Message = 40;
     let state42Message = 42;
 
-    function state01(){
+    function state01() {
         state = 1
-        hideElements(["CreateRoomBtn","CaptionsSubmitDiv"])
-        showElements(["StartBtns","UsersListDiv"])
-        $('#m').removeClass("border-red-500").addClass("border-blue-500")
-        $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
-        $('#Music')[0].play()
-        $('#m').attr("placeholder", "")
         $('#SubmitBtn').html("Submit")
+        console.log("state01: " + name)
+        if (name != "") {
+            hideElements(["CreateRoomBtn", "CaptionsSubmitDiv"])
+            showElements(["StartBtns", "UsersListDiv"])
+            $('#m').removeClass("border-red-500").addClass("border-blue-500")
+            $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
+            $('#Music')[0].play()
+            $('#m').attr("placeholder", "")
+            socket.emit('user', name)
+            socket.emit("getUsers", function (answer) {
+            displayUserList(answer)
+        });
+        }
+        else {
+            hideElements(["CreateRoomBtn"])
+            $('#m').attr("placeholder", "Submit name")
+        }
     }
-    function state12(){
+    function state12() {
         state = 2
         $("#m").val("")
-        hideElements(["StartBtns","UsersListDiv"])
+        hideElements(["StartBtns", "UsersListDiv"])
         showElements(["CaptionsSubmitDiv", "Counter", "SkipBtn"])
     }
-    function state22(){
-        showElements(["CaptionsSubmitDiv","SkipBtn"])
+    function state22() {
+        showElements(["CaptionsSubmitDiv", "SkipBtn"])
     }
-    function state23(){
+    function state23() {
         state = 3
         hideElements(["SkipBtn", "CaptionsSubmitDiv"])
         showElements(["CaptionsListDiv"])
     }
-    function state34(){
+    function state34() {
         state = 4
-        hideElements(["gif","CaptionsListDiv","Counter"])
+        hideElements(["gif", "CaptionsListDiv", "Counter"])
         showElements(["loader"])
     }
-    function state42(){
+    function state42() {
         state = 2
-        
+        hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
+        showElements(["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
+
     }
-    function state40(){
+    function state40() {
         state = 0
-        
+
     }
-    function hideElements(data){
+    function hideElements(data) {
         for (let element of data) {
             $('#' + element).hide()
         }
     }
-    function showElements(data){
+    function showElements(data) {
         for (let element of data) {
             $('#' + element).show()
         }
@@ -92,11 +105,7 @@ $(function () {
 
     // HTML jQuery initalisation
 
-    $('#StartBtns').hide()
-    $('#SkipBtn').hide()
-    $('#Counter').hide()
-    $('#loader').hide()
-    $('#WinnerName').hide()
+    hideElements(['StartBtns', 'SkipBtn', 'Counter', 'loader', 'WinnerName'])
 
     $("#SkipBtn").click(function () {
         socket.emit('skip', name);
@@ -123,9 +132,14 @@ $(function () {
 
 
     $('#CreateRoomBtn').click(function () {
-        $("#CreateRoomBtn").hide()
-        state01()
+        let valu = $('#m').val()
+        if (valu.length == 0) {
+            return;
+        } 
+        else {
+        hideElements(["CreateRoomBtn","CaptionsSubmitDiv"])
         socket.emit('newRoom', joinRoom)
+        }
     });
 
     $('#MusicButton').click(function () {
@@ -142,17 +156,14 @@ $(function () {
     });
 
     function joinRoom(roomID) {
+        name = $('#m').val()
         $('#RoomID').text("Room ID: " + roomID)
         console.log("Joining room with id: " + roomID);
         socket = io('/' + roomID);
         setSocket(socket)
         console.log(socket)
-        name = $('#m').val()
-        socket.emit('user', name)
         roomID = roomID;
-        socket.emit("getUsers", function(answer) {
-            displayUserList(answer)
-        });
+        state01()
     }
 
     function submit() {
@@ -166,7 +177,6 @@ $(function () {
                 socket.emit("joinRoom", val, function (answer) {
                     if (state == 0) {
                         if (answer) {
-                            state01()
                             joinRoom(val)
                         } else {
                             $('#m').attr('placeholder', "Room ID " + val + " does not exist, please try again")
@@ -176,11 +186,16 @@ $(function () {
                     }
                 })
                 break;
+            case 1:
+                    name = val
+                    state01()
+                break;
             case 2:
                 let data = $('#m').val()
                 console.log(data)
                 socket.emit('chat message', { "user": name, "data": data }); //Sending a message to server
                 $('#CaptionsSubmitDiv').hide()
+                
                 break;
         }
 
@@ -327,8 +342,8 @@ $(function () {
             window.location.reload(false);
         });
 
-        s.on('transition', function(tranMessage){
-            switch(tranMessage){
+        s.on('transition', function (tranMessage) {
+            switch (tranMessage) {
                 case state01Message:
                     state01();
                     break;
@@ -344,19 +359,13 @@ $(function () {
                 case state34Message:
                     state34();
                     break;
-                case state45Message:
-                    state45();
+                case state40Message:
+                    state40();
                     break;
-                case state56Message:
-                    state56();
+                case state42Message:
+                    state42();
                     break;
-                case state60Message:
-                    state60();
-                    break;
-                case state62Message:
-                    state62();
-                    break;
-            } 
+            }
         });
     }
 
