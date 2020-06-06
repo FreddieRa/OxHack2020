@@ -242,8 +242,6 @@ function Room(roomID) {
         // counting down, registering skip votes, accepting submissions
         //      If skipped: Show new gif -> Back to waiting for all users
         if (this.gotGif == false) {
-            // let url = this.getMeme()
-            // this.nsp.emit('command',{'cmd': 'forceLoad', 'data': url}) // Tells client to load and display gif
             this.getMeme('forceLoad')
         }
         this.currentMeme = this.nextMeme
@@ -295,14 +293,12 @@ function Room(roomID) {
         console.log(JSON.stringify(data))
 
         let n = this.nsp
+        let winner = this.winnerName
         $.post("https://api.imgflip.com/caption_image", data, function (result) {
             console.log(result)
             let url = JSON.parse(result).data.url
-            n.emit('winningMeme', url)
+            n.emit('winningMeme', [url, winner])
         }, "html")
-
-        this.nsp.emit('winner', this.winningSubmission)
-        this.nsp.emit('winnerName', this.winnerName)
         this.nsp.emit('transition', state34Message);
 
         this.rounds -= 1;

@@ -233,10 +233,6 @@ $(function () {
             $('#gif').attr('src', data)
         });
 
-        s.on('winnerName', function (data) {
-            $('#WinnerName').text("Winner: " + data)
-        });
-
         s.on('user', function (data) {
             displayUserList(data)
         });
@@ -276,14 +272,16 @@ $(function () {
             }
         });
 
-        s.on('winningMeme', function (url) {
+        s.on('winningMeme', function (data) {
+            url = data[0]
+            winnerName = data[1]
             //current votes, score
             countDownTimer = 0;
             timerOn = true;
-            // $('#CaptionsListDiv').empty();
             console.log(url);
             $("#winning").show()
             $("#winning").attr("src", url)
+            $('#WinnerName').text("Winner: " + winnerName)
             $("#winning").one('load', function () { $("#loader").hide(), $("#BestMeme").show(), $('#WinnerName').show() })
         });
 
