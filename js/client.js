@@ -175,12 +175,6 @@ $(function () {
         state01()
     }
 
-    function emit(command, callback) {
-        showElements(["loader"])
-        hideElements(['CaptionsSubmitDiv'])
-        socket.emit('newRoom', function (arg) { hideElements(["loader"]); showElements(["CaptionsSubmitDiv"]); joinRoom(arg) })
-    }
-
     function submit() {
         let val = $('#m').val()
         if (val.length == 0) {
