@@ -132,14 +132,8 @@ $(function () {
 
 
     $('#CreateRoomBtn').click(function () {
-        let valu = $('#m').val()
-        if (valu.length == 0) {
-            return;
-        } 
-        else {
-        hideElements(["CreateRoomBtn","CaptionsSubmitDiv"])
-        socket.emit('newRoom', joinRoom)
-        }
+
+        socket.emit('newRoom', joinRoom);
     });
 
     $('#MusicButton').click(function () {
@@ -156,7 +150,6 @@ $(function () {
     });
 
     function joinRoom(roomID) {
-        name = $('#m').val()
         $('#RoomID').text("Room ID: " + roomID)
         console.log("Joining room with id: " + roomID);
         socket = io('/' + roomID);
