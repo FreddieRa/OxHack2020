@@ -297,7 +297,7 @@ function Room(roomID) {
         $.post("https://api.imgflip.com/caption_image", data, function (result) {
             console.log(result)
             let url = JSON.parse(result).data.url
-            n.emit('winningMeme', [url, winner])
+            n.emit('winningMeme', {"url": url, "winner": winner})
         }, "html")
         this.nsp.emit('transition', state34Message);
 
