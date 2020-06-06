@@ -212,7 +212,7 @@ function Room(roomID) {
                 this.countDownTimer -= 1
                 if (this.countDownTimer == 0) {
                     if (this.rounds == 0) {
-                        this.nsp.emit('refresh', null);
+                        this.nsp.emit('transition', state40Message)
                         // TODO: Insert graceful ending, perhaps asking to play again, or showing all winning memes in collage
                         delete rooms[this.roomID]
                     } else {

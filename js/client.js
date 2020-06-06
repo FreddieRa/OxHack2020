@@ -143,6 +143,7 @@ $(function () {
 
     function state40() {
         state = 0
+        window.location.reload(false);
 
     }
 
@@ -285,10 +286,6 @@ $(function () {
             $("#winning").attr("src", url)
             $('#WinnerName').text("Winner: " + winnerName)
             $("#winning").one('load', function () { $("#loader").hide(), $("#BestMeme").show(), $('#WinnerName').show() })
-        });
-
-        s.on('refresh', function (_) {
-            window.location.reload(false);
         });
 
         s.on('transition', function (tranMessage) {
