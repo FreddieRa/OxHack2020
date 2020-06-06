@@ -17,6 +17,8 @@ let imported = document.createElement('script');
 imported.src = "./js/user.js";
 document.head.appendChild(imported);
 
+//Setup Starts
+
 // Dictionary containing rooms referenced by id
 let rooms = {}
 
@@ -40,6 +42,8 @@ io.on('connection', function (socket) {
         }
     })
 });
+
+//File stops here (?)
 
 function Room(roomID) {
     this.roomID = roomID;
@@ -222,6 +226,7 @@ function Room(roomID) {
 
 
     this.state01 = function () {
+
         // Hide start from all users -> fetch gif -> show countdown -> show gif
         // io.emit('command', {'cmd':'hide','data': 'start'});    
         this.getMeme('forceLoad')
@@ -234,6 +239,8 @@ function Room(roomID) {
     }
 
     this.state11 = function () {
+    
+
         // counting down, registering skip votes, accepting submissions
         //      If skipped: Show new gif -> Back to waiting for all users
         if (this.gotGif == false) {
@@ -256,6 +263,7 @@ function Room(roomID) {
     }
 
     this.state12 = function () {
+
         // After: 
         //      Else: Hide submission box -> Send submissions to user -> Reset counter
 
@@ -277,6 +285,7 @@ function Room(roomID) {
     }
 
     this.state23 = function () {
+
         // During: Recieving votes, Counting Down
         // Stop Condition: All users have voted || Countdown == 0
         // After: Send scores to all users -> wait 30 seconds -> change back to waiting for submissions with new gif
@@ -390,6 +399,9 @@ let states = {
     // Stop Condition: All users have voted || Countdown == 0
     // After: Send scores to all users -> wait 30 seconds -> change back to waiting for submissions with new gif
     // LOOP END
+
+    3: "Showing score board",
+    //Shows the score board (points per user)
 }
 
 
