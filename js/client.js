@@ -71,7 +71,13 @@ $(function () {
 
 
     $('#CreateRoomBtn').click(function () {
-        emit('newRoom', joinRoom);
+        showElements(["loader"])
+        hideElements(['CaptionsSubmitDiv'])
+        socket.emit('newRoom', function (roomid) {
+            hideElements(["loader"]); 
+            showElements(["CaptionsSubmitDiv"]); 
+            joinRoom(roomid) })
+    }
     });
 
     $('#MusicButton').click(function () {
@@ -356,4 +362,3 @@ function update() {
 }
 
 setInterval(update, 1000); //time is in ms
-
