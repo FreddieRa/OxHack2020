@@ -33,71 +33,11 @@ $(function () {
     let state40Message = 40;
     let state42Message = 42;
 
-    function state01() {
-        state = 1
-        $('#SubmitBtn').html("Submit")
-        console.log("state01: " + name)
-        if (name != "") {
-            hideElements(["CreateRoomBtn", "CaptionsSubmitDiv"])
-            showElements(["StartBtns", "UsersListDiv"])
-            $('#m').removeClass("border-red-500").addClass("border-blue-500")
-            $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
-            $('#Music')[0].play()
-            $('#m').attr("placeholder", "")
-            socket.emit('user', name)
-        //     socket.emit("getUsers", function (answer) {
-        // });
-        }
-        else {
-            hideElements(["CreateRoomBtn"])
-            $('#m').attr("placeholder", "Submit name")
-        }
-    }
-    function state12() {
-        state = 2
-        $("#m").val("")
-        hideElements(["StartBtns", "UsersListDiv"])
-        showElements(["CaptionsSubmitDiv", "Counter", "SkipBtn"])
-    }
-    function state22() {
-        showElements(["CaptionsSubmitDiv", "SkipBtn"])
-    }
-    function state23() {
-        state = 3
-        hideElements(["SkipBtn", "CaptionsSubmitDiv"])
-        showElements(["CaptionsListDiv"])
-    }
-    function state34() {
-        state = 4
-        hideElements(["gif", "CaptionsListDiv", "Counter"])
-        showElements(["loader"])
-    }
-    function state42() {
-        state = 2
-        hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
-        showElements(["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
-
-    }
-    function state40() {
-        state = 0
-
-    }
-    function hideElements(data) {
-        for (let element of data) {
-            $('#' + element).hide()
-        }
-    }
-    function showElements(data) {
-        for (let element of data) {
-            $('#' + element).show()
-        }
-    }
-
-
     state = 0;
     name = "";
     timerOn = false;
-    countDownTimer = 60;
+    roundTime = 60;
+    countDownTimer = roundTime;
     clicked = false;
     roomID = "";
     rounds = 5;
@@ -147,6 +87,77 @@ $(function () {
         }
     });
 
+    function state01() {
+        state = 1
+        $('#SubmitBtn').html("Submit")
+        console.log("state01: " + name)
+        if (name != "") {
+            hideElements(["CreateRoomBtn", "CaptionsSubmitDiv"])
+            showElements(["StartBtns", "UsersListDiv"])
+            $('#m').removeClass("border-red-500").addClass("border-blue-500")
+            $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
+            $('#Music')[0].play()
+            $('#m').attr("placeholder", "")
+            socket.emit('user', name)
+        }
+        else {
+            hideElements(["CreateRoomBtn"])
+            $('#m').attr("placeholder", "Submit name")
+        }
+    }
+
+    function state12() {
+        state = 2
+        startTimer()
+        $("#m").val("")
+        hideElements(["StartBtns", "UsersListDiv"])
+        showElements(["CaptionsSubmitDiv", "Counter", "SkipBtn"])
+    }
+
+    function state22() {
+        startTimer()
+        showElements(["CaptionsSubmitDiv", "SkipBtn"])
+        $('#gif').attr('src', img.src)
+    }
+
+    function state23() {
+        state = 3
+        startTimer()
+        hideElements(["SkipBtn", "CaptionsSubmitDiv"])
+        showElements(["CaptionsListDiv"])
+    }
+
+    function state34() {
+        state = 4
+        hideElements(["gif", "CaptionsListDiv", "Counter"])
+        showElements(["loader"])
+    }
+
+    function state42() {
+        state = 2
+        $('#gif').attr('src', img.src)
+        hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
+        showElements(["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
+
+    }
+
+    function state40() {
+        state = 0
+
+    }
+
+    function hideElements(data) {
+        for (let element of data) {
+            $('#' + element).hide()
+        }
+    }
+
+    function showElements(data) {
+        for (let element of data) {
+            $('#' + element).show()
+        }
+    }
+
     function joinRoom(roomID) {
         $('#RoomID').text("Room ID: " + roomID)
         console.log("Joining room with id: " + roomID);
@@ -160,7 +171,7 @@ $(function () {
     function emit(command, callback) {
         showElements(["loader"])
         hideElements(['CaptionsSubmitDiv'])
-        socket.emit('newRoom', function(arg) {hideElements(["loader"]); showElements(["CaptionsSubmitDiv"]); joinRoom(arg)})
+        socket.emit('newRoom', function (arg) { hideElements(["loader"]); showElements(["CaptionsSubmitDiv"]); joinRoom(arg) })
     }
 
     function submit() {
@@ -184,15 +195,15 @@ $(function () {
                 })
                 break;
             case 1:
-                    name = val
-                    state01()
+                name = val
+                state01()
                 break;
             case 2:
                 let data = $('#m').val()
                 console.log(data)
                 socket.emit('chat message', { "user": name, "data": data }); //Sending a message to server
                 $('#CaptionsSubmitDiv').hide()
-                
+
                 break;
         }
 
@@ -204,8 +215,6 @@ $(function () {
         console.log(s)
 
         s.on('gif', function (data) {
-            //$('#messages').append($('<li>').html('<img src="' + data + '" />'));   //Add gif
-            //window.scrollTo(0, document.body.scrollHeight);
             $('#gif').attr('src', data)
         });
 
@@ -224,26 +233,8 @@ $(function () {
             $('#gif').attr('src', data)
         });
 
-        s.on('startTimer', function (data) {
-            countDownTimer = data;
-            timerOn = true
-            $('#Counter').text(countDownTimer)
-        });
-
         s.on('winnerName', function (data) {
             $('#WinnerName').text("Winner: " + data)
-        });
-
-        s.on('loadStored', function (data) {
-            $('#gif').attr('src', img.src)      //bug s.t. img.src is not defined
-        });
-
-        s.on('hide', function (data) {
-            hideElements(data)
-        });
-
-        s.on('show', function (data) {
-            showElements(data)
         });
 
         s.on('user', function (data) {
@@ -264,7 +255,6 @@ $(function () {
                 if (item[1] != "") {
                     let div = document.createElement("div")
                     div.className = divClass
-
                     let btn = document.createElement("button")
                     btn.className = btnClass;
                     btn.innerText = item[1];
@@ -280,48 +270,10 @@ $(function () {
                             }
                         });
                     }
-
                     div.appendChild(btn)
-
                     $('#CaptionsListDiv').append(div)
                 }
-
             }
-
-            // while(i<4) {
-            //     $('#CaptionButton[' + i + ']').hide();
-            //     i++;
-            // }
-
-        });
-
-        s.on('scores', function (page) {
-            //current votes, score
-            countDownTimer = 10;
-            timerOn = true;
-            // $('#CaptionsListDiv').empty();
-
-            $("#Graph").load(page);
-            // for (let user of scores){
-            //     var x = document.createElement("li");
-            //     var b = document.createElement("h1");
-
-            //     // var ScoreboardStyling = "bg-blue-500 w-" +20 + 200 * user[2] / scores[0][2] ;//Width;
-
-            //     b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2];
-            //     b.classname = ScoreboardStyling;
-
-            //     //(While we don't have the bar chart)
-            //     x.style.flexGrow = 1;
-            //     x.style.alignContent = "stretch";
-            //     x.style.background = "#00BFFF";
-            //     x.style.margin = "5px";
-            //     b.style.flexGrow = 1;
-
-            //     x.appendChild(b);
-            //     $('#CaptionsListDiv').append(x);            
-            // }
-
         });
 
         s.on('winningMeme', function (url) {
@@ -368,7 +320,11 @@ $(function () {
 
 });
 
-
+function startTimer() {
+    countDownTimer = roundTime;
+    timerOn = true
+    $('#Counter').text(roundTime)
+}
 function displayUserList(data) {
     $('#UsersListDiv').empty()
     console.log("Incoming user")
