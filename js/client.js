@@ -276,8 +276,8 @@ $(function () {
         });
 
         s.on('winningMeme', function (data) {
-            url = data[0]
-            winnerName = data[1]
+            url = data.url
+            winnerName = data.winner
             //current votes, score
             countDownTimer = 0;
             timerOn = true;
