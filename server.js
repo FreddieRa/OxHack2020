@@ -53,7 +53,7 @@ function Room(roomID) {
     this.rounds = 5;
     this.users = {}
 
-    this.gotGif = false;
+    this.gotMeme = false;
     this.usersSubmitted = 0;
     this.usersVoted = 0;
     this.skippedVotes = 0;
@@ -138,7 +138,7 @@ function Room(roomID) {
         //     t.messages = 0;
         //     t.users = {}
 
-        //     t.gotGif = false;
+        //     t.gotMeme = false;
         //     t.usersSubmitted = 0;
         //     t.usersVoted = 0;
         //     t.skippedVotes = 0;
@@ -191,10 +191,10 @@ function Room(roomID) {
                 break;
 
             case 1:
-                if (this.gotGif == false) {
+                if (this.gotMeme == false) {
                     this.getMeme('preload')
                     // This is now done in getMeme()
-                    this.gotGif = true
+                    this.gotMeme = true
                 }
 
                 this.countDownTimer -= 1
@@ -241,13 +241,13 @@ function Room(roomID) {
 
         // counting down, registering skip votes, accepting submissions
         //      If skipped: Show new gif -> Back to waiting for all users
-        if (this.gotGif == false) {
+        if (this.gotMeme == false) {
             this.getMeme('forceLoad')
         }
         this.currentMeme = this.nextMeme
 
         this.nsp.emit('transition', state22Message);
-        this.gotGif = false;
+        this.gotMeme = false;
         this.countDownTimer = this.roundTime
         this.skippedVotes = 0
         this.usersSubmitted = 0
@@ -265,7 +265,7 @@ function Room(roomID) {
 
         this.nsp.emit('captions', mapped); // On receiving captions, hide submissions
         this.nsp.emit('transition', state23Message);
-        this.gotGif = false;
+        this.gotMeme = false;
         this.countDownTimer = this.roundTime
         this.skippedVotes = 0
         this.usersSubmitted = 0

@@ -76,8 +76,8 @@ $(function () {
         socket.emit('newRoom', function (roomid) {
             hideElements(["loader"]); 
             showElements(["CaptionsSubmitDiv"]); 
-            joinRoom(roomid) })
-    }
+            joinRoom(roomid) 
+        });
     });
 
     $('#MusicButton').click(function () {
