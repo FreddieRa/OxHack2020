@@ -232,7 +232,7 @@ $(function () {
         s.on('forceLoad', function (data) {
             console.log(data)
             $('#gif').attr('src', data)
-            $('#loader').hide()
+            hideElements(["loader"])
             showElements(["gif","CaptionsSubmitDiv", "Counter", "SkipBtn"])
         });
 
