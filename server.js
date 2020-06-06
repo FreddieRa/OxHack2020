@@ -53,7 +53,7 @@ function Room(roomID) {
     this.rounds = 5;
     this.users = {}
 
-    this.gotGif = false;
+    this.gotMeme = false;
     this.usersSubmitted = 0;
     this.usersVoted = 0;
     this.skippedVotes = 0;
@@ -64,7 +64,7 @@ function Room(roomID) {
     this.winningSubmission = "";
     this.winnerName = "";
     this.state = 0;
-    
+
     //Must match that in client.js
     //Are the codes for the transition
     let state01Message = 01;
@@ -77,12 +77,12 @@ function Room(roomID) {
     let state40Message = 40;
     let state42Message = 42;
 
-    this.getAllMemes = function() {
+    this.getAllMemes = function () {
         let url = "https://api.imgflip.com/get_memes"
-        let string = $.ajax({ 
-            url: url, 
+        let string = $.ajax({
+            url: url,
             async: false
-         }).responseText;
+        }).responseText;
         let json = JSON.parse(string);
         return json.data.memes
     }
@@ -138,7 +138,7 @@ function Room(roomID) {
         //     t.messages = 0;
         //     t.users = {}
 
-        //     t.gotGif = false;
+        //     t.gotMeme = false;
         //     t.usersSubmitted = 0;
         //     t.usersVoted = 0;
         //     t.skippedVotes = 0;
@@ -191,10 +191,10 @@ function Room(roomID) {
                 break;
 
             case 1:
-                if (this.gotGif == false) {
+                if (this.gotMeme == false) {
                     this.getMeme('preload')
                     // This is now done in getMeme()
-                    this.gotGif = true
+                    this.gotMeme = true
                 }
 
                 this.countDownTimer -= 1
@@ -212,7 +212,7 @@ function Room(roomID) {
                 this.countDownTimer -= 1
                 if (this.countDownTimer == 0) {
                     if (this.rounds == 0) {
-                        this.nsp.emit('refresh', null);
+                        this.nsp.emit('transition', state40Message)
                         // TODO: Insert graceful ending, perhaps asking to play again, or showing all winning memes in collage
                         delete rooms[this.roomID]
                     } else {
@@ -228,10 +228,8 @@ function Room(roomID) {
     this.state01 = function () {
 
         // Hide start from all users -> fetch gif -> show countdown -> show gif
-        // io.emit('command', {'cmd':'hide','data': 'start'});    
         this.getMeme('forceLoad')
         this.currentMeme = this.nextMeme
-        this.nsp.emit('startTimer', this.roundTime)     
         this.nsp.emit('transition', state12Message);
         this.countDownTimer = this.roundTime
 
@@ -239,24 +237,17 @@ function Room(roomID) {
     }
 
     this.state11 = function () {
-    
+
 
         // counting down, registering skip votes, accepting submissions
         //      If skipped: Show new gif -> Back to waiting for all users
-        if (this.gotGif == false) {
-            // let url = this.getMeme()
-            // this.nsp.emit('command',{'cmd': 'forceLoad', 'data': url}) // Tells client to load and display gif
+        if (this.gotMeme == false) {
             this.getMeme('forceLoad')
-
-        } else {
-            this.nsp.emit('loadStored', null) // Tells client to display loaded gif (with countdown 0)
         }
         this.currentMeme = this.nextMeme
 
         this.nsp.emit('transition', state22Message);
-        this.nsp.emit('startTimer', this.roundTime)
-
-        this.gotGif = false;
+        this.gotMeme = false;
         this.countDownTimer = this.roundTime
         this.skippedVotes = 0
         this.usersSubmitted = 0
@@ -273,11 +264,8 @@ function Room(roomID) {
         if (mapped.filter(x => x != "").length == 0) { this.state11(); return false; }
 
         this.nsp.emit('captions', mapped); // On receiving captions, hide submissions
-        // io.emit('command',{'cmd': 'show', 'data': 'CaptionsListDiv'})
-        this.nsp.emit('startTimer', this.roundTime )
-
         this.nsp.emit('transition', state23Message);
-        this.gotGif = false;
+        this.gotMeme = false;
         this.countDownTimer = this.roundTime
         this.skippedVotes = 0
         this.usersSubmitted = 0
@@ -292,39 +280,25 @@ function Room(roomID) {
         // LOOP END
 
         let u = Object.values(this.users)
-    
-        
-        this.nsp.emit('hide', ["Counter","SkipBtn","CaptionsSubmitDiv","gif","StartBtns","UsersListDiv"])
-        this.nsp.emit('loadStored', null) // Tells client to display loaded gif in 30 seconds
-
-        this.nsp.emit('show', ["loader"])
-    
-        
         let text = this.winningSubmission.split(',')
         let boxes = []
 
-        for (let box of text) { 
-            boxes.push({"text": box})
+        for (let box of text) {
+            boxes.push({ "text": box })
         }
-    
+
         //let data = {"template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": text[0], "text1": text[1]}
-        let data = {"template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes}
+        let data = { "template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes }
 
         console.log(JSON.stringify(data))
 
         let n = this.nsp
+        let winner = this.winnerName
         $.post("https://api.imgflip.com/caption_image", data, function (result) {
             console.log(result)
             let url = JSON.parse(result).data.url
-            n.emit('winningMeme', url)
+            n.emit('winningMeme', {"url": url, "winner": winner})
         }, "html")
-
-        this.nsp.emit('winner', this.winningSubmission)
-        this.nsp.emit('startTimer', this.roundTime)
-        this.nsp.emit('winnerName', this.winnerName)
-
-        // this.nsp.emit('command',{'cmd':'show','data': ["WinnerName"]})
-        
         this.nsp.emit('transition', state34Message);
 
         this.rounds -= 1;
@@ -344,15 +318,13 @@ function Room(roomID) {
 
     this.state31 = function () {
         this.nsp.emit('transition', state42Message);
-        this.nsp.emit('startTimer', this.roundTime)
         this.countDownTimer = this.roundTime
         this.state = 1
-    }    
+    }
 
 
-    this.getMeme = function(command) {
+    this.getMeme = function (command) {
         let keys = Object.keys(this.memes)
-
         let key = Math.floor(Math.random() * keys.length)
         let memeurl = this.memes[keys[key]].url
         let memeid = this.memes[keys[key]].id
@@ -360,12 +332,12 @@ function Room(roomID) {
         let boxes = []
 
         // Get number for each position
-        for(let i = 1; i < boxCount + 1; i++) {boxes.push({"text": i})}
+        for (let i = 1; i < boxCount + 1; i++) { boxes.push({ "text": i }) }
 
-        let data = {"template_id": memeid, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes}
-        
+        let data = { "template_id": memeid, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes }
+
         let n = this.nsp
-        $.post("https://api.imgflip.com/caption_image", data, function(result) {
+        $.post("https://api.imgflip.com/caption_image", data, function (result) {
             console.log(result)
             let url = JSON.parse(result).data.url
             n.emit(command, url)
@@ -413,10 +385,6 @@ app.get('/', function (req, res) {
 app.get('/js/client.js', function (req, res) {
     res.sendFile(__dirname + '/js/client.js');
 });
-
-app.get('/EdSite', function (req, res) {
-    res.sendFile(__dirname + '/EdSite/index.html')
-})
 
 app.use('/css', express.static(__dirname + '/css'));
 app.use('/js', express.static(__dirname + '/js'));
@@ -484,4 +452,3 @@ function Giph(tag) {
         return json.data.image_original_url
     }
 }
-
