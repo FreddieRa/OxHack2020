@@ -110,8 +110,8 @@ $(function () {
         state = 2
         startTimer()
         $("#m").val("")
-        hideElements(["StartBtns", "UsersListDiv"])
-        showElements(["CaptionsSubmitDiv", "Counter", "SkipBtn"])
+        hideElements(["StartBtns", "UsersListDiv","gif"])
+        showElements(["loader"])
     }
 
     function state22() {
@@ -231,6 +231,8 @@ $(function () {
         s.on('forceLoad', function (data) {
             console.log(data)
             $('#gif').attr('src', data)
+            $('#loader').hide()
+            showElements(["gif","CaptionsSubmitDiv", "Counter", "SkipBtn"])
         });
 
         s.on('user', function (data) {
