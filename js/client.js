@@ -45,9 +45,8 @@ $(function () {
             $('#Music')[0].play()
             $('#m').attr("placeholder", "")
             socket.emit('user', name)
-            socket.emit("getUsers", function (answer) {
-            displayUserList(answer)
-        });
+        //     socket.emit("getUsers", function (answer) {
+        // });
         }
         else {
             hideElements(["CreateRoomBtn"])
@@ -132,8 +131,7 @@ $(function () {
 
 
     $('#CreateRoomBtn').click(function () {
-
-        socket.emit('newRoom', joinRoom);
+        emit('newRoom', joinRoom);
     });
 
     $('#MusicButton').click(function () {
@@ -157,6 +155,12 @@ $(function () {
         console.log(socket)
         roomID = roomID;
         state01()
+    }
+
+    function emit(command, callback) {
+        showElements(["loader"])
+        hideElements(['CaptionsSubmitDiv'])
+        socket.emit('newRoom', function(arg) {hideElements(["loader"]); showElements(["CaptionsSubmitDiv"]); joinRoom(arg)})
     }
 
     function submit() {
@@ -363,6 +367,7 @@ $(function () {
     }
 
 });
+
 
 function displayUserList(data) {
     $('#UsersListDiv').empty()
