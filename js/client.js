@@ -30,8 +30,9 @@ $(function () {
     let state22Message = 22;
     let state23Message = 23;
     let state34Message = 34;
-    let state40Message = 40;
-    let state42Message = 42;
+    let state45Message = 45;
+    let state50Message = 50;
+    let state52Message = 52;
 
     state = 0;
     name = "";
@@ -44,7 +45,7 @@ $(function () {
 
     // HTML jQuery initalisation
 
-    hideElements(['StartBtns', 'SkipBtn', 'Counter', 'loader', 'WinnerName'])
+    hideElements(['StartBtns', 'SkipBtn', 'Counter', 'loader', 'WinnerName', 'LeaderBoard'])
 
     $("#SkipBtn").click(function () {
         socket.emit('skip', name);
@@ -113,6 +114,7 @@ $(function () {
     }
 
     function state12() {
+        console.log("state12")
         state = 2
         startTimer()
         $("#m").val("")
@@ -121,12 +123,14 @@ $(function () {
     }
 
     function state22() {
+        console.log("state22")
         startTimer()
         showElements(["CaptionsSubmitDiv", "SkipBtn"])
         $('#gif').attr('src', img.src)
     }
 
     function state23() {
+        console.log("state23")
         state = 3
         startTimer()
         hideElements(["SkipBtn", "CaptionsSubmitDiv"])
@@ -134,20 +138,30 @@ $(function () {
     }
 
     function state34() {
+        console.log("state34")
         state = 4
         hideElements(["gif", "CaptionsListDiv", "Counter"])
         showElements(["loader"])
     }
+    
+    function state45() {
+        console.log("state45")
+        state = 5
+        hideElements["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"]
+        showElements(["LeaderBoard"])
+    }
 
-    function state42() {
+    function state52() {
+        console.log("state52")
         state = 2
         $('#gif').attr('src', img.src)
-        hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
+        hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName", "LeaderBoard"])
         showElements(["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
 
     }
 
-    function state40() {
+    function state50() {
+        console.log("state50")
         state = 0
         window.location.reload(false);
 
@@ -288,6 +302,26 @@ $(function () {
             $("#winning").one('load', function () { $("#loader").hide(), $("#BestMeme").show(), $('#WinnerName').show() })
         });
 
+        s.on('scores', function(scores){
+            var $list = $("#players");
+		
+            $list.find("li.player").remove();
+            if(timerId !== undefined) {
+                clearInterval(timerId);
+            }
+            let sortedUsers = scores.sort(descending)
+            for(var i = 0; i < sortedUsers.length; i++) {
+                var $item = $(
+                    "<li class='player'>" + 
+                        "<div class='rank'>" + (i + 1) + "</div>" + 
+                        "<div class='name'>" + sortedUsers[i][0] + "</div>" +
+                        "<div class='score'>" + sortedUsers[i][1] + "</div>" +
+                    "</li>");
+                sortedUsers[i].$item = $item;
+                $list.append($item);
+            }
+        });
+
         s.on('transition', function (tranMessage) {
             switch (tranMessage) {
                 case state01Message:
@@ -305,17 +339,21 @@ $(function () {
                 case state34Message:
                     state34();
                     break;
-                case state40Message:
-                    state40();
+                case state45Message:
+                    state45()
+                case state50Message:
+                    state50();
                     break;
-                case state42Message:
-                    state42();
+                case state52Message:
+                    state52();
                     break;
             }
         });
     }
 
 });
+
+this.descending = function (a, b) { return a[1] < b[1] ? 1 : -1; }
 
 function startTimer() {
     countDownTimer = roundTime;

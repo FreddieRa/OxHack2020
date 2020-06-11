@@ -74,8 +74,9 @@ function Room(roomID) {
     let state23Message = 23;
     let state31Message = 31;
     let state34Message = 34;
-    let state40Message = 40;
-    let state42Message = 42;
+    let state45Message = 45;
+    let state50Message = 50;
+    let state52Message = 52;
 
     this.getAllMemes = function () {
         let url = "https://api.imgflip.com/get_memes"
@@ -211,14 +212,20 @@ function Room(roomID) {
             case 3:
                 this.countDownTimer -= 1
                 if (this.countDownTimer == 0) {
+                    this.state34()
+                }
+            case 4:
+                this.countDownTimer -= 1
+                if (this.countDownTimer == 0) {
                     if (this.rounds == 0) {
-                        this.nsp.emit('transition', state40Message)
+                        this.nsp.emit('transition', state50Message)
                         // TODO: Insert graceful ending, perhaps asking to play again, or showing all winning memes in collage
                         delete rooms[this.roomID]
                     } else {
-                        this.state31()
+                        this.state41()
                     }
                 }
+                break;
         }
     }
 
@@ -232,7 +239,6 @@ function Room(roomID) {
         this.currentMeme = this.nextMeme
         this.nsp.emit('transition', state12Message);
         this.countDownTimer = this.roundTime
-
         this.state = 1
     }
 
@@ -316,12 +322,20 @@ function Room(roomID) {
         this.currentMeme = this.nextMeme
     }
 
-    this.state31 = function () {
-        this.nsp.emit('transition', state42Message);
+    this.state34 = function() {
+        console.log('state34')
+        this.nsp.emit('transition', state45Message);
+        let scores = Object.values(this.users).map(x => [x.username, x.currentScore])
+        this.nsp.emit('scores', scores)
+        this.countDownTimer = 6
+        this.state = 4
+    }
+
+    this.state41 = function () {
+        this.nsp.emit('transition', state52Message);
         this.countDownTimer = this.roundTime
         this.state = 1
     }
-
 
     this.getMeme = function (command) {
         let keys = Object.keys(this.memes)
@@ -372,7 +386,10 @@ let states = {
     // After: Send scores to all users -> wait 30 seconds -> change back to waiting for submissions with new gif
     // LOOP END
 
-    3: "Showing score board",
+    3: "Showing winning meme for the round",
+    //Shows the meme that got the most votes and the name of the user who submitted the caption for
+
+    4: "Showing score board"
     //Shows the score board (points per user)
 }
 
