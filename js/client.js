@@ -312,27 +312,29 @@ $(function () {
             
                 list.find("li.Player").remove();
                 for(var i = 0; i < sortedUsers.length; i++) {
-                    var item = $(
+                    var row = $(
                         "<li class='Player'>" + 
                             "<div class='Rank'>" + (i + 1) + "</div>" + 
                             "<div class='Name'>" + sortedUsers[i].name + "</div>" +
                             "<div class='Score'>" + sortedUsers[i].score + "</div>" +
                         "</li>");
-                    sortedUsers[i].item = item;
-                    list.append(item);
+                    sortedUsers[i].item = row;
+                    list.append(row);
                 }
             } else {
                 for (let player of scores) {
                     for(var i = 0; i < sortedUsers.length; i++) {
-                        if (sortedUsers[i].name = player.name){
+                        if (sortedUsers[i].name == player.name) {
                             sortedUsers[i].score = player.score;
                         }
                     }
                 }
-                sortedUsers = scores.sort(descending)
+                sortedUsers = sortedUsers.sort(descending)
                 for(var i = 0; i < sortedUsers.length; i++) {
                     console.log(sortedUsers[i])
-                    sortedUsers[i].item.find(".Rank").text(i + 1);	
+                    let usr = sortedUsers[i].item
+                    usr.find(".Rank").text(i + 1);	
+                    usr.find(".Score").text(sortedUsers[i].score);	
                 }
             }
             var height = $("#LeaderBoard .header").height();
