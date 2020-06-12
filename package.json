@@ -11,9 +11,13 @@
     "jquery": "^3.5.1",
     "jsdom": "^16.2.2",
     "socket.io": "^1.7.3",
-    "tailwindcss": "^1.4.6"
+    "yarn": "^1.22.4"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "yarn build:css && node server.js",
+    "build:css": "postcss css/StyleSheet.css -o css/CompiledStyle.css"
+  },
+  "devDependencies": {
+    "tailwindcss": "^1.4.6"
   }
 }

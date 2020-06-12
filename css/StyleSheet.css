@@ -1,3 +1,24 @@
+@tailwind base;
+
+h1 {
+  @apply text-2xl;
+}
+h2 {
+  @apply text-xl;
+}
+h3 {
+  @apply text-lg;
+}
+
+.btn {
+    @apply bg-transparent text-blue-700 font-semibold py-2 my-4 px-4 border border-blue-500 rounded;
+}
+
+.btn:hover {
+    @apply bg-blue-300
+}
+
+
 img {
     max-height: 50vh;
     max-width: 50vw;
@@ -39,3 +60,8 @@ img {
  #MusicButton:focus {
     outline:none;
 }
+
+
+@tailwind components;
+
+@tailwind utilities;
