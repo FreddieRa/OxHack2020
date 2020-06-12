@@ -155,16 +155,15 @@ $(function () {
         console.log("state52")
         state = 2
         $('#gif').attr('src', img.src)
+        startTimer()
         hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName", "LeaderBoard"])
         showElements(["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
-
     }
 
     function state50() {
         console.log("state50")
         state = 0
         window.location.reload(false);
-
     }
 
     function hideElements(data) {
@@ -303,22 +302,26 @@ $(function () {
         });
 
         s.on('scores', function(scores){
-            var $list = $("#players");
+            console.log('recieving scores:'+ scores)
+            var $list = $("#Players");
 		
-            $list.find("li.player").remove();
-            if(timerId !== undefined) {
-                clearInterval(timerId);
-            }
+            $list.find("li.Player").remove();
             let sortedUsers = scores.sort(descending)
             for(var i = 0; i < sortedUsers.length; i++) {
                 var $item = $(
-                    "<li class='player'>" + 
-                        "<div class='rank'>" + (i + 1) + "</div>" + 
-                        "<div class='name'>" + sortedUsers[i][0] + "</div>" +
-                        "<div class='score'>" + sortedUsers[i][1] + "</div>" +
+                    "<li class='Player'>" + 
+                        "<div class='Rank'>" + (i + 1) + "</div>" + 
+                        "<div class='Name'>" + sortedUsers[i][0] + "</div>" +
+                        "<div class='Score'>" + sortedUsers[i][1] + "</div>" +
                     "</li>");
                 sortedUsers[i].$item = $item;
                 $list.append($item);
+            }
+            var height = $("#LeaderBoard .header").height();
+            var y = height;
+            for(var i = 0; i < scores.length; i++) {
+                scores[i].$item.css("top", y + "px");
+                y += height;			
             }
         });
 
@@ -341,6 +344,7 @@ $(function () {
                     break;
                 case state45Message:
                     state45()
+                    break;
                 case state50Message:
                     state50();
                     break;

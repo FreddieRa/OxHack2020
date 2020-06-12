@@ -187,7 +187,6 @@ function Room(roomID) {
     });
 
     this.update = function () {
-        console.log(this.state)
         switch (this.state) {
             case 0:
                 break;
@@ -220,6 +219,7 @@ function Room(roomID) {
                 this.countDownTimer -= 1
                 if (this.countDownTimer == 0) {
                     if (this.rounds == 0) {
+                        cosole.log('reset')
                         this.nsp.emit('transition', state50Message)
                         // TODO: Insert graceful ending, perhaps asking to play again, or showing all winning memes in collage
                         delete rooms[this.roomID]
@@ -326,13 +326,14 @@ function Room(roomID) {
     this.state34 = function() {
         console.log('state34')
         this.nsp.emit('transition', state45Message);
-        let scores = Object.values(this.users).map(x => [x.username, x.currentScore])
+        let scores = Object.values(this.users).map(x => [x.username, x.score])
         this.nsp.emit('scores', scores)
         this.countDownTimer = 6
         this.state = 4
     }
 
     this.state41 = function () {
+        console.log('state41')
         this.nsp.emit('transition', state52Message);
         this.countDownTimer = this.roundTime
         this.state = 1
