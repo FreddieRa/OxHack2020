@@ -147,7 +147,7 @@ $(function () {
     function state45() {
         console.log("state45")
         state = 5
-        hideElements["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"]
+        hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
         showElements(["LeaderBoard"])
     }
 

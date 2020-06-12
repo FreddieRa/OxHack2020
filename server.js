@@ -187,6 +187,7 @@ function Room(roomID) {
     });
 
     this.update = function () {
+        console.log(this.state)
         switch (this.state) {
             case 0:
                 break;
@@ -214,6 +215,7 @@ function Room(roomID) {
                 if (this.countDownTimer == 0) {
                     this.state34()
                 }
+                break;
             case 4:
                 this.countDownTimer -= 1
                 if (this.countDownTimer == 0) {
@@ -296,15 +298,14 @@ function Room(roomID) {
         //let data = {"template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "text0": text[0], "text1": text[1]}
         let data = { "template_id": this.currentMeme, "username": "FreddieRa", "password": "OxHack2020!", "boxes": boxes }
 
-        console.log(JSON.stringify(data))
-
         let n = this.nsp
         let winner = this.winnerName
         $.post("https://api.imgflip.com/caption_image", data, function (result) {
-            console.log(result)
+            //console.log(result)
             let url = JSON.parse(result).data.url
             n.emit('winningMeme', {"url": url, "winner": winner})
         }, "html")
+        console.log("Emitting 34 message.")
         this.nsp.emit('transition', state34Message);
 
         this.rounds -= 1;
