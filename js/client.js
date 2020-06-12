@@ -313,10 +313,10 @@ $(function () {
                 list.find("li.Player").remove();
                 for(var i = 0; i < sortedUsers.length; i++) {
                     var row = $(
-                        "<li class='Player'>" + 
-                            "<div class='Rank'>" + (i + 1) + "</div>" + 
-                            "<div class='Name'>" + sortedUsers[i].name + "</div>" +
-                            "<div class='Score'>" + sortedUsers[i].score + "</div>" +
+                        "<li class='Player flex'>" + 
+                            "<div class='Rank  table-element'>" + (i + 1) + "</div>" + 
+                            "<div class='Name  table-element'>" + sortedUsers[i].name + "</div>" +
+                            "<div class='Score table-element'>" + sortedUsers[i].score + "</div>" +
                         "</li>");
                     sortedUsers[i].item = row;
                     list.append(row);

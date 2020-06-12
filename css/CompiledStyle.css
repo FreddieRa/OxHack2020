@@ -681,6 +681,93 @@ img {
   outline:none;
 }
 
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity:0;
+  }
+
+  100% {
+    opacity:1;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity:0;
+  }
+
+  100% {
+    opacity:1;
+  }
+}
+
+#LeaderBoard li {
+  font-family: sans-serif;
+  font-size: 12px;
+  line-height: 12px;
+}
+
+.table-element {
+  flex-direction: row;
+  padding: 1rem
+}
+
+/* 
+#LeaderBoard #Players li {
+   display:block;
+   clear: both;
+   position: absolute;
+   width: 350px;
+   transition-duration: 1s;
+   -moz-transition-duration: 1s;
+   -webkit-transition-duration: 1s;
+   -ms-transition-duration: 1s;
+   animation: fadeIn 1s both;
+} 
+
+#LeaderBoard #Players li.header {
+   font-weight: bold;
+   background-color: silver;
+   background: -moz-linear-gradient(top, #cedce7 0%, #596a72 100%);
+   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#cedce7), color-stop(100%,#596a72));
+}
+
+#LeaderBoard #Players {
+   padding: 0;
+   width: 350px;
+   position: relative;
+   border: 1px solid #333;
+   box-shadow: 2px 2px 5px gray;
+   height: 132px;
+   background: -moz-linear-gradient(top, #cedce7 0%, #596a72 100%);
+   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#cedce7), color-stop(100%,#596a72));
+}
+
+#LeaderBoard #Players div {
+   display: block;
+   float: left;
+   overflow: hidden;
+   padding: 5px;
+}
+
+#LeaderBoard .Player {
+   background: -moz-linear-gradient(top, #feffff 0%, #e0dace 100%);
+   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#feffff), color-stop(100%,#e0dace));
+}
+
+#LeaderBoard .Rank {
+   width: 50px;
+}
+
+#LeaderBoard .Name {
+   width: 150px;
+}
+
+#LeaderBoard .Score {
+   width: 100px;	
+}
+*/
+
 .container {
   width: 100%;
 }

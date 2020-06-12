@@ -72,6 +72,10 @@ img {
    line-height: 12px;
 }
 
+.table-element {
+    @apply flex-row p-4
+}
+/* 
 #LeaderBoard #Players li {
    display:block;
    clear: both;
@@ -82,7 +86,7 @@ img {
    -webkit-transition-duration: 1s;
    -ms-transition-duration: 1s;
    animation: fadeIn 1s both;
-}
+} 
 
 #LeaderBoard #Players li.header {
    font-weight: bold;
@@ -125,7 +129,7 @@ img {
 #LeaderBoard .Score {
    width: 100px;	
 }
-
+*/
 @tailwind components;
 
 @tailwind utilities;
