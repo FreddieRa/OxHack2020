@@ -326,7 +326,14 @@ function Room(roomID) {
     this.state34 = function() {
         console.log('state34')
         this.nsp.emit('transition', state45Message);
-        let scores = Object.values(this.users).map(x => [x.username, x.score])
+        let scores = [];
+        for (let val of Object.values(this.users)) {
+            let temp = {"name": val.username,
+                        "score": val.score}
+            scores.push(temp)
+        }
+        // let values = Object.values(users)
+        // let scores = values.map(x => {"name": x.username, "score", x.score}) //syntax error from this
         this.nsp.emit('scores', scores)
         this.countDownTimer = 6
         this.state = 4

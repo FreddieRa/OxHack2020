@@ -40,8 +40,10 @@ $(function () {
     roundTime = 60;
     countDownTimer = roundTime;
     clicked = false;
+    firstRound = true;
     roomID = "";
     rounds = 5;
+    sortedUsers = [];
 
     // HTML jQuery initalisation
 
@@ -302,25 +304,41 @@ $(function () {
         });
 
         s.on('scores', function(scores){
-            console.log('recieving scores:'+ scores)
-            var $list = $("#Players");
-		
-            $list.find("li.Player").remove();
-            let sortedUsers = scores.sort(descending)
-            for(var i = 0; i < sortedUsers.length; i++) {
-                var $item = $(
-                    "<li class='Player'>" + 
-                        "<div class='Rank'>" + (i + 1) + "</div>" + 
-                        "<div class='Name'>" + sortedUsers[i][0] + "</div>" +
-                        "<div class='Score'>" + sortedUsers[i][1] + "</div>" +
-                    "</li>");
-                sortedUsers[i].$item = $item;
-                $list.append($item);
+            console.log('recieving scores:'+ sortedUsers)
+            if (firstRound){
+                sortedUsers = scores.sort(descending)
+                firstRound = false;
+                var list = $("#Players");
+            
+                list.find("li.Player").remove();
+                for(var i = 0; i < sortedUsers.length; i++) {
+                    var item = $(
+                        "<li class='Player'>" + 
+                            "<div class='Rank'>" + (i + 1) + "</div>" + 
+                            "<div class='Name'>" + sortedUsers[i].name + "</div>" +
+                            "<div class='Score'>" + sortedUsers[i].score + "</div>" +
+                        "</li>");
+                    sortedUsers[i].item = item;
+                    list.append(item);
+                }
+            } else {
+                for (let player of scores) {
+                    for(var i = 0; i < sortedUsers.length; i++) {
+                        if (sortedUsers[i].name = player.name){
+                            sortedUsers[i].score = player.score;
+                        }
+                    }
+                }
+                sortedUsers = scores.sort(descending)
+                for(var i = 0; i < sortedUsers.length; i++) {
+                    console.log(sortedUsers[i])
+                    sortedUsers[i].item.find(".Rank").text(i + 1);	
+                }
             }
             var height = $("#LeaderBoard .header").height();
             var y = height;
-            for(var i = 0; i < scores.length; i++) {
-                scores[i].$item.css("top", y + "px");
+            for(var i = 0; i < sortedUsers.length; i++) {
+                sortedUsers[i].item.css("top", y + "px");
                 y += height;			
             }
         });
@@ -357,7 +375,7 @@ $(function () {
 
 });
 
-this.descending = function (a, b) { return a[1] < b[1] ? 1 : -1; }
+this.descending = function (a, b) { return a.score < b.score ? 1 : -1; }
 
 function startTimer() {
     countDownTimer = roundTime;
