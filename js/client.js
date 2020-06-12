@@ -30,8 +30,9 @@ $(function () {
     let state22Message = 22;
     let state23Message = 23;
     let state34Message = 34;
-    let state40Message = 40;
-    let state42Message = 42;
+    let state45Message = 45;
+    let state50Message = 50;
+    let state52Message = 52;
 
     state = 0;
     name = "";
@@ -39,12 +40,14 @@ $(function () {
     roundTime = 60;
     countDownTimer = roundTime;
     clicked = false;
+    firstRound = true;
     roomID = "";
     rounds = 5;
+    sortedUsers = [];
 
     // HTML jQuery initalisation
 
-    hideElements(['StartBtns', 'SkipBtn', 'Counter', 'loader', 'WinnerName'])
+    hideElements(['StartBtns', 'SkipBtn', 'Counter', 'loader', 'WinnerName', 'LeaderBoard'])
 
     $("#SkipBtn").click(function () {
         socket.emit('skip', name);
@@ -113,6 +116,7 @@ $(function () {
     }
 
     function state12() {
+        console.log("state12")
         state = 2
         startTimer()
         $("#m").val("")
@@ -121,12 +125,14 @@ $(function () {
     }
 
     function state22() {
+        console.log("state22")
         startTimer()
         showElements(["CaptionsSubmitDiv", "SkipBtn"])
         $('#gif').attr('src', img.src)
     }
 
     function state23() {
+        console.log("state23")
         state = 3
         startTimer()
         hideElements(["SkipBtn", "CaptionsSubmitDiv"])
@@ -134,23 +140,32 @@ $(function () {
     }
 
     function state34() {
+        console.log("state34")
         state = 4
         hideElements(["gif", "CaptionsListDiv", "Counter"])
         showElements(["loader"])
     }
-
-    function state42() {
-        state = 2
-        $('#gif').attr('src', img.src)
+    
+    function state45() {
+        console.log("state45")
+        state = 5
         hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
-        showElements(["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
-
+        showElements(["LeaderBoard"])
     }
 
-    function state40() {
+    function state52() {
+        console.log("state52")
+        state = 2
+        $('#gif').attr('src', img.src)
+        startTimer()
+        hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName", "LeaderBoard"])
+        showElements(["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
+    }
+
+    function state50() {
+        console.log("state50")
         state = 0
         window.location.reload(false);
-
     }
 
     function hideElements(data) {
@@ -288,6 +303,48 @@ $(function () {
             $("#winning").one('load', function () { $("#loader").hide(), $("#BestMeme").show(), $('#WinnerName').show() })
         });
 
+        s.on('scores', function(scores){
+            console.log('recieving scores:'+ sortedUsers)
+            if (firstRound){
+                sortedUsers = scores.sort(descending)
+                firstRound = false;
+                var list = $("#Players");
+            
+                list.find("li.Player").remove();
+                for(var i = 0; i < sortedUsers.length; i++) {
+                    var row = $(
+                        "<li class='Player'>" + 
+                            "<div class='Rank'>" + (i + 1) + "</div>" + 
+                            "<div class='Name'>" + sortedUsers[i].name + "</div>" +
+                            "<div class='Score'>" + sortedUsers[i].score + "</div>" +
+                        "</li>");
+                    sortedUsers[i].item = row;
+                    list.append(row);
+                }
+            } else {
+                for (let player of scores) {
+                    for(var i = 0; i < sortedUsers.length; i++) {
+                        if (sortedUsers[i].name == player.name) {
+                            sortedUsers[i].score = player.score;
+                        }
+                    }
+                }
+                sortedUsers = sortedUsers.sort(descending)
+                for(var i = 0; i < sortedUsers.length; i++) {
+                    console.log(sortedUsers[i])
+                    let usr = sortedUsers[i].item
+                    usr.find(".Rank").text(i + 1);	
+                    usr.find(".Score").text(sortedUsers[i].score);	
+                }
+            }
+            var height = $("#LeaderBoard .header").height();
+            var y = height;
+            for(var i = 0; i < sortedUsers.length; i++) {
+                sortedUsers[i].item.css("top", y + "px");
+                y += height;			
+            }
+        });
+
         s.on('transition', function (tranMessage) {
             switch (tranMessage) {
                 case state01Message:
@@ -305,17 +362,22 @@ $(function () {
                 case state34Message:
                     state34();
                     break;
-                case state40Message:
-                    state40();
+                case state45Message:
+                    state45()
                     break;
-                case state42Message:
-                    state42();
+                case state50Message:
+                    state50();
+                    break;
+                case state52Message:
+                    state52();
                     break;
             }
         });
     }
 
 });
+
+this.descending = function (a, b) { return a.score < b.score ? 1 : -1; }
 
 function startTimer() {
     countDownTimer = roundTime;
