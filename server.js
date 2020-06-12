@@ -407,6 +407,10 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/tailwind', function (req, res) {
+    res.sendFile(__dirname + '/index-copy.html');
+});
+
 
 app.get('/js/client.js', function (req, res) {
     res.sendFile(__dirname + '/js/client.js');

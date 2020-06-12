@@ -681,35 +681,32 @@ img {
   outline:none;
 }
 
-@-webkit-keyframes fadeIn {
-  0% {
-    opacity:0;
-  }
+/* @keyframes fadeIn {
+   0% {opacity:0;}
+   100% {opacity:1;}
+   } */
 
-  100% {
-    opacity:1;
-  }
+/* #LeaderBoard li {
+   font-family: sans-serif;
+   font-size: 12px;
+   line-height: 12px;
+} */
+
+#LeaderBoard {
+  flex-direction: column;
 }
 
-@keyframes fadeIn {
-  0% {
-    opacity:0;
-  }
-
-  100% {
-    opacity:1;
-  }
+#Players {
+  flex-direction: column;
 }
 
-#LeaderBoard li {
-  font-family: sans-serif;
-  font-size: 12px;
-  line-height: 12px;
+.Player .header {
+  display: flex;
 }
 
-.table-element {
-  flex-direction: row;
-  padding: 1rem
+.Rank .Name .Score {
+  display: flex;
+  padding: 1rem;
 }
 
 /* 

@@ -61,19 +61,29 @@ img {
     outline:none;
 }
 
-@keyframes fadeIn {
+/* @keyframes fadeIn {
    0% {opacity:0;}
    100% {opacity:1;}
-   }
+   } */
 
-#LeaderBoard li {
+/* #LeaderBoard li {
    font-family: sans-serif;
    font-size: 12px;
    line-height: 12px;
+} */
+
+#LeaderBoard {
+    @apply flex-col;
+}
+#Players {
+    @apply flex-col;
 }
 
-.table-element {
-    @apply flex-row p-4
+.Player .header {
+    @apply flex;
+}
+.Rank .Name .Score {
+    @apply flex p-4;
 }
 /* 
 #LeaderBoard #Players li {
