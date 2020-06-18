@@ -101,7 +101,7 @@ $(function () {
         $('#SubmitBtn').html("Submit")
         console.log("state01: " + name)
         if (name != "") {
-            hideElements(["CreateRoomBtn", "CaptionsSubmitDiv"])
+            hideElements(["CreateRoomBtn", "CaptionsSubmitDiv","HelpButton"])
             showElements(["StartBtns", "UsersListDiv"])
             $('#m').removeClass("border-red-500").addClass("border-blue-500")
             $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")

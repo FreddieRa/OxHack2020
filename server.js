@@ -412,6 +412,10 @@ app.get('/js/client.js', function (req, res) {
     res.sendFile(__dirname + '/js/client.js');
 });
 
+app.get('/help', function (req, res) {
+    res.sendFile(__dirname + '/help.html');
+});
+
 app.use('/css', express.static(__dirname + '/css'));
 app.use('/js', express.static(__dirname + '/js'));
 
