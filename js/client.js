@@ -75,7 +75,7 @@ $(function () {
 
     $('#CreateRoomBtn').click(function () {
         showElements(["loader"])
-        hideElements(['CaptionsSubmitDiv'])
+        hideElements(['CaptionsSubmitDiv','HelpButton'])
         socket.emit('newRoom', function (roomid) {
             hideElements(["loader"]); 
             showElements(["CaptionsSubmitDiv"]); 
@@ -101,7 +101,7 @@ $(function () {
         $('#SubmitBtn').html("Submit")
         console.log("state01: " + name)
         if (name != "") {
-            hideElements(["CreateRoomBtn", "CaptionsSubmitDiv","HelpButton"])
+            hideElements(["CreateRoomBtn", "CaptionsSubmitDiv"])
             showElements(["StartBtns", "UsersListDiv"])
             $('#m').removeClass("border-red-500").addClass("border-blue-500")
             $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
@@ -110,7 +110,7 @@ $(function () {
             socket.emit('user', name)
         }
         else {
-            hideElements(["CreateRoomBtn"])
+            hideElements(["CreateRoomBtn","HelpButton"])
             $('#m').attr("placeholder", "Submit name")
         }
     }
