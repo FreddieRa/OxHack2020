@@ -1,4 +1,4 @@
-$(function() {
+$(function () {
     socket = io();    //Gets the socket from the server (?)
 
     // document.addEventListener('keydown', reset);
@@ -9,87 +9,185 @@ $(function() {
     // }
 
     // States
-    // 0: waiting to join room or make new one
-    // 1: waiting to enter name or press start
-    // 2: In game
+    // 0: Waiting to join room or make new one
+    // 1: Waiting to enter name or press start
+    // 2: Submitting caption and or skipping then waiting to recieve transition command
+    // 3: Voting then waiting to recieve transition command
+    // 4: Displaying winning meme
 
     // Transitions
-    // 0 -> 1: Hide "make room", join the required room
-    // 1 -> 2: Hide ["start", "UsersListDiv"]
+    // 0 -> 1: Hide ["CreateRoomBtn"], join the required room
+    // 1 -> 2: Hide ["StartBtns", "UsersListDiv"] Show ["CaptionsSubmitDiv", "Counter", "SkipBtn"]
+    // 2 -> 2: Show ["CaptionsSubmitDiv","SkipBtn"]
+    // 2 -> 3: Hide ["SkipBtn", "CaptionsSubmitDiv"] Show ["CaptionsListDiv"]
+    // 3 -> 4: Hide ["gif","CaptionsListDiv","Counter"] Show ["loader"]
+    // 4 -> 0: 
+    // 4 -> 2:
+
+
+    let state01Message = 01;
+    let state12Message = 12;
+    let state22Message = 22;
+    let state23Message = 23;
+    let state34Message = 34;
+    let state45Message = 45;
+    let state50Message = 50;
+    let state52Message = 52;
 
     state = 0;
     name = "";
     timerOn = false;
-    countDownTimer = 60;
+    roundTime = 60;
+    countDownTimer = roundTime;
     clicked = false;
+    firstRound = true;
     roomID = "";
     rounds = 5;
+    sortedUsers = [];
 
     // HTML jQuery initalisation
 
-    $('#StartBtns').hide()
-    $('#SkipBtn').hide()
-    $('#Counter').hide()
-    $('#loader').hide()
-    $('#RoomID').hide()
-    $('#WinnerName').hide()
+    hideElements(['StartBtns', 'SkipBtn', 'Counter', 'loader', 'WinnerName', 'LeaderBoard'])
 
-    $("#SkipBtn").click(function(){ 
+    $("#SkipBtn").click(function () {
         socket.emit('skip', name);
     });
 
-    $("#StartBtn").click(function(){ 
+    $("#StartBtn").click(function () {
         socket.emit('start', null);
     });
 
-    $("#RoundsBtn").click(function(){
+    $("#RoundsBtn").click(function () {
         // Goes 5, 10, 20 in loop
-        rounds = (rounds*2) % 35
+        rounds = (rounds * 2) % 35
         $("#RoundsBtn").html("Rounds: " + rounds)
         socket.emit('rounds', rounds);
     });
 
-    $('#m').keyup(function(e){
-        if (e.keyCode == 13) {submit()}
+    $('#m').keyup(function (e) {
+        if (e.keyCode == 13) { submit() }
     });
 
-    $('#SubmitBtn').click(function(){
+    $('#SubmitBtn').click(function () {
         submit()
     });
 
 
-    $('#CreateRoomBtn').click(function(){
-        socket.emit('newRoom', joinRoom)
+    $('#CreateRoomBtn').click(function () {
+        showElements(["loader"])
+        hideElements(['CaptionsSubmitDiv','HelpButton'])
+        socket.emit('newRoom', function (roomid) {
+            hideElements(["loader"]); 
+            showElements(["CaptionsSubmitDiv"]); 
+            joinRoom(roomid) 
+        });
     });
 
-    $('#MusicButton').click(function(){
+    $('#MusicButton').click(function () {
         if ($('#Music')[0].paused) {
-            $('#MusicImage').attr('src','resources/images/icons8-speaker-40.png')  
+            $('#MusicImage').attr('src', 'resources/images/icons8-speaker-40.png')
             console.log('audio')
             $('#Music')[0].play()
         }
         else {
-            $('#MusicImage').attr('src','resources/images/icons8-no-audio-40.png')
+            $('#MusicImage').attr('src', 'resources/images/icons8-no-audio-40.png')
             console.log('No audio')
             $('#Music')[0].pause()
         }
     });
 
+    function state01() {
+        state = 1
+        $('#SubmitBtn').html("Submit")
+        console.log("state01: " + name)
+        if (name != "") {
+            hideElements(["CreateRoomBtn", "CaptionsSubmitDiv"])
+            showElements(["StartBtns", "UsersListDiv"])
+            $('#m').removeClass("border-red-500").addClass("border-blue-500")
+            $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
+            $('#Music')[0].play()
+            $('#m').attr("placeholder", "")
+            socket.emit('user', name)
+        }
+        else {
+            hideElements(["CreateRoomBtn","HelpButton"])
+            $('#m').attr("placeholder", "Submit name")
+        }
+    }
+
+    function state12() {
+        console.log("state12")
+        state = 2
+        startTimer()
+        $("#m").val("")
+        hideElements(["StartBtns", "UsersListDiv","gif"])
+        showElements(["loader"])
+    }
+
+    function state22() {
+        console.log("state22")
+        startTimer()
+        showElements(["CaptionsSubmitDiv", "SkipBtn"])
+        $('#gif').attr('src', img.src)
+    }
+
+    function state23() {
+        console.log("state23")
+        state = 3
+        startTimer()
+        hideElements(["SkipBtn", "CaptionsSubmitDiv"])
+        showElements(["CaptionsListDiv"])
+    }
+
+    function state34() {
+        console.log("state34")
+        state = 4
+        hideElements(["gif", "CaptionsListDiv", "Counter"])
+        showElements(["loader"])
+    }
+    
+    function state45() {
+        console.log("state45")
+        state = 5
+        hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName"])
+        showElements(["LeaderBoard"])
+    }
+
+    function state52() {
+        console.log("state52")
+        state = 2
+        $('#gif').attr('src', img.src)
+        startTimer()
+        hideElements(["StartBtns", "CaptionsListDiv", "LeaderBoardDiv", "UsersListDiv", "BestMeme", "WinnerName", "LeaderBoard"])
+        showElements(["gif", "Counter", "SkipBtn", "CaptionsSubmitDiv"])
+    }
+
+    function state50() {
+        console.log("state50")
+        state = 0
+        window.location.reload(false);
+    }
+
+    function hideElements(data) {
+        for (let element of data) {
+            $('#' + element).hide()
+        }
+    }
+
+    function showElements(data) {
+        for (let element of data) {
+            $('#' + element).show()
+        }
+    }
+
     function joinRoom(roomID) {
+        $('#RoomID').text("Room ID: " + roomID)
         console.log("Joining room with id: " + roomID);
-        socket = io('/'+roomID);
+        socket = io('/' + roomID);
         setSocket(socket)
         console.log(socket)
         roomID = roomID;
-        $('#CreateRoomBtn').hide()
-        $('#m').removeClass("border-red-500").addClass("border-blue-500")
-        $('#m').attr("placeholder", "Submit a name, and press start when everyone's in!")
-        $('#RoomID').text("Room ID: " + roomID)
-        $('#RoomID').show()
-        $('#Music')[0].play()
-        socket.emit("getUsers")
-        
-        state = 1
+        state01()
     }
 
     function submit() {
@@ -109,102 +207,55 @@ $(function() {
                             $('#m').removeClass("border-blue-500").addClass("border-red-500")
                             state = 0
                         }
-                    }  
+                    }
                 })
                 break;
-
             case 1:
-                $('#CaptionsSubmitDiv').hide()
-                $('#StartBtns').show()
-                name = $('#m').val()
-                socket.emit('user', name); //Sending a message to server
-                $('#m').attr("placeholder", "")
-                $('#SubmitBtn').html("Submit")
-                state = 2;
+                name = val
+                state01()
                 break;
-
             case 2:
                 let data = $('#m').val()
                 console.log(data)
-                socket.emit('chat message', {"user": name, "data": data}); //Sending a message to server
-                $('#CaptionsSubmitDiv').hide()  
+                socket.emit('chat message', { "user": name, "data": data }); //Sending a message to server
+                $('#CaptionsSubmitDiv').hide()
+
                 break;
         }
 
         $('#m').val('');  //Setter      
         return false;
     }
-  
+
     function setSocket(s) {
         console.log(s)
-        
-        s.on('command', function(cmdDict) {
-            console.log(cmdDict)
-            let cmd = cmdDict.cmd
-            let data = cmdDict.data
-            switch (cmd) {
-                case 'gif':
-                    //$('#messages').append($('<li>').html('<img src="' + data + '" />'));   //Add gif
-                    //window.scrollTo(0, document.body.scrollHeight);
-                    $('#gif').attr('src', data)
-                    break;
-                case 'wipe': 
-                    $('#messages').empty();
-                    $('#gif').attr('src', '/resources/gifs/HelloThere.gif')
-                    break;
-                case 'preload': 
-                    img = new Image();
-                    img.src = data;
-                    break;
-                case 'forceLoad': // Tells client to display loaded gif now
-                    console.log(data)
-                    $('#gif').attr('src', data)                
-                    break;
-                case 'startTimer':
-                    countDownTimer = data;
-                    timerOn = true
-                    $('#Counter').text(countDownTimer) 
-                    break;
-                case 'winnerName':
-                    $('#WinnerName').text("Winner: "+ data)
-                    break;
-                case 'loadStored':
-                    $('#gif').attr('src', img.src)      //bug s.t. img.src is not defined
-                    break;
-                case 'hide':
-                    for (let element of data){
-                        $('#'+element).hide()
-                    }
-                    break;
-                case 'show':
-                    for (let element of data){
-                     $('#'+element).show()
-                    }                
-                    break;
-                case 'user':
-                    $('#UsersListDiv').empty()
-                    console.log("Incoming user")
-                    let divClass = "w-1/2 p-2"
-                    let h2Class = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg"
-                    for (let name of data) {
-                        console.log("Recieving " + name + " from server");
 
-                        let div = document.createElement("div");
-                        div.className = divClass
+        s.on('gif', function (data) {
+            $('#gif').attr('src', data)
+        });
 
-                        let h2 = document.createElement("h2");
-                        h2.className = h2Class
-                        h2.innerHTML = name
+        s.on('wipe', function (data) {
+            $('#messages').empty();
+            $('#gif').attr('src', '/resources/gifs/HelloThere.gif')
+        });
 
-                        div.appendChild(h2);
-                        $('#UsersListDiv').append(div);   
-                    }
-                    $('#UsersListDiv').show();
-                    break;         
-          }
-      });
+        s.on('preload', function (data) {
+            img = new Image();
+            img.src = data;
+        });
 
-      s.on('captions', function(captions) {
+        s.on('forceLoad', function (data) {
+            console.log(data)
+            $('#gif').attr('src', data)
+            hideElements(["loader"])
+            showElements(["gif","CaptionsSubmitDiv", "Counter", "SkipBtn"])
+        });
+
+        s.on('user', function (data) {
+            displayUserList(data)
+        });
+
+        s.on('captions', function (captions) {
             countDownTimer = 30
             timerOn = true
             $('#Counter').text(countDownTimer)
@@ -215,95 +266,151 @@ $(function() {
             let btnClass = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg "
 
             for (let item of captions) {
-                if (item[1] != ""){
+                if (item[1] != "") {
                     let div = document.createElement("div")
                     div.className = divClass
-
                     let btn = document.createElement("button")
                     btn.className = btnClass;
                     btn.innerText = item[1];
                     if (false) {
                         $(btn).css("cursor", "default");
                     } else {
-                        btn.addEventListener("click", function(){ 
+                        btn.addEventListener("click", function () {
                             if (clicked == false) {
                                 this.className = this.className.replace('bg-gray-400', 'bg-blue-700')
                                 this.className = this.className.replace('text-gray-700', 'text-white-700')
-                                s.emit('vote', {"user": name, "data": item[0]});
+                                s.emit('vote', { "user": name, "data": item[0] });
                                 clicked = true
                             }
                         });
                     }
-
                     div.appendChild(btn)
-
                     $('#CaptionsListDiv').append(div)
                 }
-            
             }
+        });
 
-            // while(i<4) {
-            //     $('#CaptionButton[' + i + ']').hide();
-            //     i++;
-            // }
-        
-      });
-
-        s.on('scores', function(page) {
+        s.on('winningMeme', function (data) {
+            url = data.url
+            winnerName = data.winner
             //current votes, score
-            countDownTimer = 10;
+            countDownTimer = 0;
             timerOn = true;
-            // $('#CaptionsListDiv').empty();
+            console.log(url);
+            $("#winning").show()
+            $("#winning").attr("src", url)
+            $('#WinnerName').text("Winner: " + winnerName)
+            $("#winning").one('load', function () { $("#loader").hide(), $("#BestMeme").show(), $('#WinnerName').show() })
+        });
 
-            $("#Graph").load(page);
-            // for (let user of scores){
-            //     var x = document.createElement("li");
-            //     var b = document.createElement("h1");
+        s.on('scores', function(scores){
+            console.log('recieving scores:'+ sortedUsers)
+            if (firstRound){
+                sortedUsers = scores.sort(descending)
+                firstRound = false;
+                var list = $("#Players");
+            
+                list.find("li.Player").remove();
+                for(var i = 0; i < sortedUsers.length; i++) {
+                    var row = $(
+                        "<li class='Player'>" + 
+                            "<div class='Rank'>" + (i + 1) + "</div>" + 
+                            "<div class='Name'>" + sortedUsers[i].name + "</div>" +
+                            "<div class='Score'>" + sortedUsers[i].score + "</div>" +
+                        "</li>");
+                    sortedUsers[i].item = row;
+                    list.append(row);
+                }
+            } else {
+                for (let player of scores) {
+                    for(var i = 0; i < sortedUsers.length; i++) {
+                        if (sortedUsers[i].name == player.name) {
+                            sortedUsers[i].score = player.score;
+                        }
+                    }
+                }
+                sortedUsers = sortedUsers.sort(descending)
+                for(var i = 0; i < sortedUsers.length; i++) {
+                    console.log(sortedUsers[i])
+                    let usr = sortedUsers[i].item
+                    usr.find(".Rank").text(i + 1);	
+                    usr.find(".Score").text(sortedUsers[i].score);	
+                }
+            }
+            var height = $("#LeaderBoard .header").height();
+            var y = height;
+            for(var i = 0; i < sortedUsers.length; i++) {
+                sortedUsers[i].item.css("top", y + "px");
+                y += height;			
+            }
+        });
 
-            //     // var ScoreboardStyling = "bg-blue-500 w-" +20 + 200 * user[2] / scores[0][2] ;//Width;
+        s.on('transition', function (tranMessage) {
+            switch (tranMessage) {
+                case state01Message:
+                    state01();
+                    break;
+                case state12Message:
+                    state12();
+                    break;
+                case state22Message:
+                    state22();
+                    break;
+                case state23Message:
+                    state23();
+                    break;
+                case state34Message:
+                    state34();
+                    break;
+                case state45Message:
+                    state45()
+                    break;
+                case state50Message:
+                    state50();
+                    break;
+                case state52Message:
+                    state52();
+                    break;
+            }
+        });
+    }
 
-            //     b.innerHTML = user[0]+': votes '+user[1]+' score '+user[2];
-            //     b.classname = ScoreboardStyling;
+});
 
-            //     //(While we don't have the bar chart)
-            //     x.style.flexGrow = 1;
-            //     x.style.alignContent = "stretch";
-            //     x.style.background = "#00BFFF";
-            //     x.style.margin = "5px";
-            //     b.style.flexGrow = 1;
+this.descending = function (a, b) { return a.score < b.score ? 1 : -1; }
 
-            //     x.appendChild(b);
-            //     $('#CaptionsListDiv').append(x);            
-            // }
-        
-      });
+function startTimer() {
+    countDownTimer = roundTime;
+    timerOn = true
+    $('#Counter').text(roundTime)
+}
+function displayUserList(data) {
+    $('#UsersListDiv').empty()
+    console.log("Incoming user")
+    let divClass = "w-1/2 p-2"
+    let h2Class = "text-gray-700 text-center bg-gray-400 p-2 rounded-lg"
+    for (let name of data) {
+        console.log("Recieving " + name + " from server");
 
-      s.on('winningMeme', function(url) {
-        //current votes, score
-        countDownTimer = 0;
-        timerOn = true;
-        // $('#CaptionsListDiv').empty();
-        console.log(url);
-        $("#winning").show()
-        $("#winning").attr("src", url)
-        $("#winning").one('load', function(){$("#loader").hide(), $("#BestMeme").show(), $('#WinnerName').show()})
-    });
+        let div = document.createElement("div");
+        div.className = divClass
 
-    s.on('refresh', function(_) {
-        window.location.reload(false);
-    });
-        }
+        let h2 = document.createElement("h2");
+        h2.className = h2Class
+        h2.innerHTML = name
 
-}); 
-
+        div.appendChild(h2);
+        $('#UsersListDiv').append(div);
+    }
+}
 
 function update() {
-    if (timerOn){
+    if (timerOn) {
         if (countDownTimer > 0) {
             countDownTimer -= 1
             $('#Counter').text(countDownTimer)
         }
-        else{
+        else {
             timerOn = false
             $('#Counter').attr('display', 'none')
         }
@@ -311,4 +418,3 @@ function update() {
 }
 
 setInterval(update, 1000); //time is in ms
-
