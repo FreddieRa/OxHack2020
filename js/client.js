@@ -75,7 +75,7 @@ $(function () {
 
     $('#CreateRoomBtn').click(function () {
         showElements(["loader"])
-        hideElements(['CaptionsSubmitDiv'])
+        hideElements(['CaptionsSubmitDiv','HelpButton'])
         socket.emit('newRoom', function (roomid) {
             hideElements(["loader"]); 
             showElements(["CaptionsSubmitDiv"]); 
@@ -110,7 +110,7 @@ $(function () {
             socket.emit('user', name)
         }
         else {
-            hideElements(["CreateRoomBtn"])
+            hideElements(["CreateRoomBtn","HelpButton"])
             $('#m').attr("placeholder", "Submit name")
         }
     }
